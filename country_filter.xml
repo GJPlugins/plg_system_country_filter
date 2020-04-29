@@ -1,7 +1,16 @@
 <?xml version="1.0" encoding="utf-8"?>
 <extension version="3.0" type="plugin" group="system" method="upgrade">
 
+    <files>
+        <folder>asset</folder>
+        <folder>field</folder>
+        <folder>language</folder>
+        <folder>Helpers</folder>
+        <filename plugin="country_filter">country_filter.php</filename>
+        <filename>country_filter_update.xml</filename>
+        <filename>README.md</filename>
+    </files>
     <updateservers>
-        <server type="extension" name="JoomShopping - Loading products from Excel Update Site">https://raw.githubusercontent.com/GJPlugins/plg_system_country_filter/master/country_filter_update.xml</server>
+        <server type="extension" name="Joomla - Country Filter Update Site">https://raw.githubusercontent.com/GJPlugins/plg_system_country_filter/master/country_filter_update.xml</server>
     </updateservers>
 </extension>
