@@ -1,7 +1,0 @@
-<?xml version="1.0" encoding="utf-8"?>
-<extension version="3.0" type="plugin" group="system" method="upgrade">
-
-    <updateservers>
-        <server type="extension" name="JoomShopping - Loading products from Excel Update Site">https://raw.githubusercontent.com/Gartes-JoomShopping/plg_exsel_products/master/country_filter_update.xml</server>
-    </updateservers>
-</extension>
