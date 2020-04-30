@@ -12,8 +12,9 @@
     <files>
         <folder>asset</folder>
         <folder>field</folder>
-        <folder>language</folder>
         <folder>Helpers</folder>
+        <folder>language</folder>
+        <folder>tmpl</folder>
         <filename plugin="country_filter">country_filter.php</filename>
         <filename>country_filter_update.xml</filename>
         <filename>README.md</filename>
@@ -31,6 +32,17 @@
                     <option value="1">JYES</option>
                     <option value="0">JNO</option>
                 </field>
+            </fieldset>
+            <fieldset name="module">
+                <field name="module_position"
+                	type="moduleposition"
+                	default="region-select"
+                	class="module_position "
+                	label="COUNTRY_FILTER_MODULE_POSITION"
+                	description="COUNTRY_FILTER_MODULE_POSITION_DESC"
+                	showon=""
+                	filter="raw" />
+                	
             </fieldset>
         </fields>
     </config>
