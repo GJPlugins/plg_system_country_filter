@@ -14,6 +14,7 @@
         <folder>field</folder>
         <folder>Helpers</folder>
         <folder>language</folder>
+        <folder>sql</folder>
         <folder>tmpl</folder>
         <filename plugin="country_filter">country_filter.php</filename>
         <filename>country_filter_update.xml</filename>
@@ -123,7 +124,21 @@
 			</fieldset>
         </fields>
     </config>
-
+	<install>
+		<sql>
+			<file driver="mysql" charset="utf8">sql/country_filter.install.sql</file>
+		</sql>
+	</install>
+	<uninstall>
+		<sql>
+			<file driver="mysql" charset="utf8">sql/country_filter.uninstall.sql</file>
+		</sql>
+	</uninstall>
+	<update>
+		<schemas>
+			<schemapath type="mysql">sql/updates/mysql</schemapath>
+		</schemas>
+	</update>
     <updateservers>
         <server type="extension" name="Joomla - Country Filter Update Site">https://raw.githubusercontent.com/GJPlugins/plg_system_country_filter/master/country_filter_update.xml</server>
     </updateservers>
