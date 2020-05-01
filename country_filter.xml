@@ -7,7 +7,7 @@
     <license>Proprietary. Copyrighted Commercial Software</license>
     <authorEmail>sad.net79@gmail.com</authorEmail>
     <authorUrl>http://back-end.ga/</authorUrl>
-    <version>0.0.1</version>
+    <version>0.0.2</version>
     <description><![CDATA[Developed & Powered by <a href="http://back-end.ga/" target="_blank">back-end.ga/</a>]]></description>
     <files>
         <folder>asset</folder>
@@ -128,3 +128,9 @@
         <server type="extension" name="Joomla - Country Filter Update Site">https://raw.githubusercontent.com/GJPlugins/plg_system_country_filter/master/country_filter_update.xml</server>
     </updateservers>
 </extension>
+
+<!--
+
+https://github.com/gartes/GNZ11/archive/master.zip
+https://github.com/GJPlugins/plg_system_country_filter/archive/master.zip
+-->
