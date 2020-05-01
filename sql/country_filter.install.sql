@@ -17,7 +17,6 @@ CREATE TABLE IF NOT EXISTS `#__plg_system_country_filter_city` (
 ALTER TABLE `#__plg_system_country_filter_city`
     ADD PRIMARY KEY (`city_id`),
     ADD UNIQUE KEY `idx_sef` (`sef`),
-    ADD UNIQUE KEY `idx_countryid` (`country_id`),
     ADD KEY `idx_ordering` (`ordering`);
 
 --
