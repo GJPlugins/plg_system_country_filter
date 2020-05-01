@@ -11,6 +11,7 @@
 	
 	
 	use JLoader;
+	use Joomla\Registry\Registry;
 	
 	class Helper
 	{
@@ -44,7 +45,7 @@
 		{
 		
 			
-//			$this->app = \JFactory::getApplication();
+			$this->app = \JFactory::getApplication();
 			$this->params = $options ;
 			
 			$isJoomla4 = version_compare(JVERSION, '3.999999.999999', 'gt');
@@ -72,20 +73,55 @@
 			return self::$instance;
 		}#END FN
 		
+		private  static  $GoogleApiFieldArr = [
+			'country_autocomplete',
+		];
+		
 		/**
-		 * Загрузщик модулей
+		 * Загрузка контента для модального окна
+		 * @return object[]
+		 *
+		 * @since version
+		 */
+		public function getModuleAjax(){
+			$format = $this->app->input->get('format' , 'html' , 'WORD' );
+			$moduleName = $this->app->input->get('moduleName' , 'html' , 'STRING' );
+			$moduleName .= ($format=='html'? null :'.'.$format);
+			$content = $this->getModul( $moduleName ) ;
+			
+			
+			
+			$content->api = [];
+			$content->api['api_key'] =  $this->params->get('google_map_api_key' , false );
+			
+			/**
+			 * https://developers.google.com/maps/documentation/javascript/reference/places-autocomplete-service#ComponentRestrictions
+			 * https://en.wikipedia.org/wiki/List_of_ISO_3166_country_codes
+			 */
+			if( $this->params->get('country_autocomplete' , false ) )
+			{
+				$content->api['componentRestrictions']['country'] =  $this->params->get('country_autocomplete' , false );
+			}#END IF
+			
+			
+			
+			
+			
+			return ['module' => $content ];
+		}
+		
+		/**
+		 * Загрузчик модулей
 		 *
 		 * @param $moduleName
 		 *
 		 * @since version
 		 */
-		public function getModul ( $moduleName = 'region_select' )
+		public function getModul ( $moduleName = 'region_select' , $options = []   )
 		{
-			
-			$GNZ11_js =  \GNZ11\Core\Js::instance();
-
-			
-			$fakeModule = (object)[
+			\GNZ11\Core\Js::instance();
+			$objRegistry = new Registry;
+			$settingModule = [
 				'id' => 1999999999,
 				'title' => 'Backup on Update',
 				'module' => 'mod_custom',
@@ -106,6 +142,11 @@
 				] ) ,
 				'menuid' => 0 ,
 			];
+			$settingModule = array_merge_recursive( $settingModule , $options ) ;
+			$objRegistry->loadArray($settingModule);
+			$fakeModule = $objRegistry->toObject() ;
+			 
+//
 			return $fakeModule ;
 		}
 		

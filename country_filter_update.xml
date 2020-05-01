@@ -1,6 +1,6 @@
 <updates>
     <update>
-        <name>plgSystemCountryFilterUpdate</name>
+        <name>PlgSystemCountryFilterUpdate</name>
         <description><![CDATA[Joomla - Country Filter]]></description>
         <type>plugin</type>
         <folder>system</folder>

@@ -19,6 +19,13 @@
 	 */
 	class plgSystemCountry_filter extends JPlugin
 	{
+		/**
+		 * Affects constructor behavior. If true, language files will be loaded automatically.
+		 * @var    boolean
+		 * @since  3.1
+		 */
+		protected $autoloadLanguage = true;
+		
 		protected $app;
 		
 		/**
@@ -54,8 +61,7 @@
 		public function __construct ( &$subject, $config )
 		{
 			parent::__construct( $subject, $config );
-			
-			$this->app = JFactory::getApplication();
+//			$this->app = JFactory::getApplication();
 			
 			# Параметры SEO Включить SEF (ЧПУ)
 			$this->mode_sef     = $this->app->get('sef', 0);
@@ -70,6 +76,7 @@
 			{
 				JLoader::registerNamespace('GNZ11',JPATH_LIBRARIES.'/GNZ11',$reset=false,$prepend=false,$type='psr4');
 				JLoader::registerNamespace('CountryFilter',JPATH_PLUGINS.'/system/country_filter',$reset=false,$prepend=false,$type='psr4');
+				
 				
 				# Разбираем URL Страницы
 				$path = str_replace( JUri::root(), '', JUri::current() );
@@ -105,8 +112,6 @@
 		
 		public function postprocessSEFBuildRule ( &$router, &$uri )
 		{
-		
- 
 			$uri->delVar( 'sitecountry' );
 		}
 		
@@ -170,5 +175,38 @@
 			
 			return $modules;
 		}
+		
+		/**
+		* Точка входа Ajax
+		*
+		* @throws Exception
+		* @since 3.9
+		* @author Gartes
+		* @creationDate 2020-04-30, 16:59
+		* @see {url : https://docs.joomla.org/Using_Joomla_Ajax_Interface/ru }
+		*/
+		public function onAjaxCountry_filter ()
+		{
+			
+			JLoader::registerNamespace( 'GNZ11', JPATH_LIBRARIES . '/GNZ11', $reset = false, $prepend = false, $type = 'psr4' );
+			JLoader::registerNamespace( 'CountryFilter', JPATH_PLUGINS . '/system/country_filter', $reset = false, $prepend = false, $type = 'psr4' );
+			
+			$helper = \CountryFilter\Helpers\Helper::instance( $this->params );
+			$task = $this->app->input->get( 'task', null, 'STRING' );
+			
+			try
+			{
+				// Code that may throw an Exception or Error.
+				$results = $helper->$task();
+			} catch (Exception $e)
+			{
+				$results = $e;
+			}
+			return $results;
+		}
+		
+		
+		
+		
 		
 	}
