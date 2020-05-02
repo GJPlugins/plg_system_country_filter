@@ -10,3 +10,4 @@ DROP TABLE IF EXISTS `#__plg_system_country_filter_cities`;
 --
 -- Сводная таблица для города
 DROP TABLE IF EXISTS `#__plg_system_country_filter_city_map`;
+
