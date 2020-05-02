@@ -90,7 +90,7 @@
 			<fieldset name="api">
 				<field name="google_map_api_key"
 					type="text"
-					default=""
+					default="AIzaSyAyRfXMfWX_DciZ73U_Jwndn0gKTvCq7r0"
 					class="google_map_api_key "
 					readonly=""
 					required="1"
