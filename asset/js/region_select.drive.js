@@ -51,17 +51,48 @@ var RegionSelect = function () {
 };
 
 function country_filter_initMap() {
-    var setting = Joomla.getOptions('gApi' , false);
-    setting.types = ['(cities)'] ;
-    var input = document.getElementById('pac-input');
-    var autocomplete = new google.maps.places.Autocomplete(input , setting );
 
+    var options = Joomla.getOptions('gApi' , false);
+
+    /**
+     * Массив TYPES указывает явный тип или коллекцию типов,
+     * Если ничего не указано, возвращаются все типы. Как правило, допускается только один тип.
+     * Исключение является то , что вы можете смело смешивать geocodeи establishment тип, но обратите внимание ,
+     * что это будет иметь тот же эффект, не указывая никаких типов.
+     *
+     * Поддерживаемые типы:
+     *                      geocode поручает службе Places возвращать только результаты геокодирования,
+     *                              а не бизнес-результаты.
+     *                      address поручает службе Places возвращать только результаты геокодирования с точным адресом.
+     *                      establishment поручает службе «Места» возвращать только бизнес-результаты.
+     *                      (regions)коллекция типа дает указание службы Places ,
+     *                      чтобы вернуть любой результат сопоставления следующих типов:
+     *                      locality sublocality postal_code country administrative_area1 administrative_area2
+     *
+     *
+     *
+     * @type {string[]}
+     */
+    options.types = ['(cities)'] ;
+    var input = document.getElementById('pac-input');
+    var autocomplete = new google.maps.places.Autocomplete(  input , options  );
     google.maps.event.addListener(autocomplete, 'place_changed', function () {
-        var place = autocomplete.getPlace(); //получаем место
-        console.log(place);
-        console.log(place.name);  //название места
-        console.log(place.id);  //уникальный идентификатор места
+        var PlaceResult = autocomplete.getPlace(); //Получить obj PlaceResult
+        console.log(PlaceResult);
+        console.log(PlaceResult.name);  //название места
+        console.log(PlaceResult.id);  //уникальный идентификатор места
     });
+
+
+
+
+
+
+    // Avoid paying for data that you don't need by restricting the set of
+    // place fields that are returned to just the address components.
+    /*autocomplete.setFields(['address_component']);
+
+    */
 
 
 

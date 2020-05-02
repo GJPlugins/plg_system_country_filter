@@ -94,6 +94,8 @@
 			$content->api = [];
 			$content->api['api_key'] =  $this->params->get('google_map_api_key' , false );
 			
+//			echo'<pre>';print_r( $this->params->get('country_autocomplete' , false ) );echo'</pre>'.__FILE__.' '.__LINE__;
+//			die(__FILE__ .' '. __LINE__ );
 			/**
 			 * https://developers.google.com/maps/documentation/javascript/reference/places-autocomplete-service#ComponentRestrictions
 			 * https://en.wikipedia.org/wiki/List_of_ISO_3166_country_codes

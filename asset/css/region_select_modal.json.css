@@ -439,6 +439,6 @@
     z-index: 999900;
     display: block !important;
 }
-.pac-logo:after{
-    display: none;
-}
+/*.pac-logo:after{*/
+/*    display: none;*/
+/*}*/
