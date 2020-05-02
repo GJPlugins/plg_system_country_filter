@@ -9,11 +9,6 @@
 	
 	$doc = JFactory::getDocument();
 	
-	$listCityTop = $this->params->get('top_city' , false );
-	$api_key = $this->params->get('google_map_api_key' , false ) ;
-	
-	
-	
 	$arrCityTop = [
 		'Москва',
 		'Санкт-Петербург',
@@ -22,13 +17,19 @@
 		'Нижний Новгород',
 		'Казань',
 	];
+	$arrCityTop = $this->params->get('top_city' , false   );
+	$api_key = $this->params->get('google_map_api_key' , false ) ;
+	
+	
+	/*echo'<pre>';print_r( $arrCityTop );echo'</pre>'.__FILE__.' '.__LINE__;
+	die(__FILE__ .' '. __LINE__ );*/
 	
 	
 	
 ?>
 
-<link href="<?=JUri::root()?>/plugins/system/country_filter/asset/css/region_select_modal.json.css" rel="stylesheet" type="text/css" />
-<script src="https://maps.googleapis.com/maps/api/js?key=<?= $api_key ?>&libraries=places&callback=country_filter_initMap" />
+<link id="region_select_modal-css" href="<?=JUri::root()?>/plugins/system/country_filter/asset/css/region_select_modal.json.css" rel="stylesheet" type="text/css" />
+<!--<script src="https://maps.googleapis.com/maps/api/js?key=--><?//= $api_key ?><!--&libraries=places&callback=country_filter_initMap" />-->
 
 <svg style="display: none;">
     <defs id="symbols">

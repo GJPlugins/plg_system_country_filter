@@ -7,7 +7,7 @@
     <license>Proprietary. Copyrighted Commercial Software</license>
     <authorEmail>sad.net79@gmail.com</authorEmail>
     <authorUrl>http://back-end.ga/</authorUrl>
-    <version>0.0.2</version>
+    <version>0.0.3</version>
     <description><![CDATA[Developed & Powered by <a href="http://back-end.ga/" target="_blank">back-end.ga/</a>]]></description>
     <files>
         <folder>asset</folder>
@@ -67,7 +67,7 @@
                 	showon=""
                 	filter="raw" />
 
-                <field name="top_city"
+                <!--<field name="top_city"
                 	type="list"
                 	default=""
                 	required=""
@@ -78,19 +78,37 @@
                 	readonly=""
                 	showon=""
                 	filter="raw" >
-<!--                		<option value="">Please Select</option>-->
+&lt;!&ndash;                		<option value="">Please Select</option>&ndash;&gt;
                 		<option  value="1">Москва</option>
                 		<option value="2">Санкт-Петербург</option>
                 		<option value="3">Новосибирск</option>
                 		<option value="4">Екатеринбург</option>
                 		<option value="5">Нижний Новгород</option>
                 		<option value="6">Казань</option>
-                	</field>
+                	</field>-->
+
+				 <field name="top_city"
+				     type="sql"
+				     query="SELECT e.* FROM #__plg_system_country_filter_cities AS e  GROUP BY e.title ORDER BY e.title ASC "
+				 			key_field="title"
+				 			value_field="title"
+				     multiple="1"
+				     translate="false"
+				     header="Пожалуйста выберите"
+				     label="COUNTRY_FILTER_TOP_CITY"
+				     description="COUNTRY_FILTER_TOP_CITY_DESC"
+				     class="top_city "
+				     showon="" />
+
+				 	
+
+
+
 			</fieldset>
 			<fieldset name="api">
 				<field name="google_map_api_key"
 					type="text"
-					default="AIzaSyAyRfXMfWX_DciZ73U_Jwndn0gKTvCq7r0"
+					default=""
 					class="google_map_api_key "
 					readonly=""
 					required="1"

@@ -15,7 +15,7 @@
 	 */
 	$Jpro = $doc->getScriptOptions('Jpro') ;
     $Jpro['load'][] = [
-		'u' => JUri::base() . 'plugins/system/country_filter/asset/js/region_select.drive.js' , // Путь к файлу
+		'u' => JUri::base() . 'plugins/system/country_filter/asset/js/country_filter.region_select.drive.js' , // Путь к файлу
 		't' => 'js' ,                                       // Тип загружаемого ресурса
 		'c' => '' ,                             // метод после завершения загрузки
 	];

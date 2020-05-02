@@ -104,11 +104,6 @@
 			{
 				$content->api['componentRestrictions']['country'] =  $this->params->get('country_autocomplete' , ["ru", "ua"] );
 			}#END IF
-			
-			
-			
-			
-			
 			return ['module' => $content ];
 		}
 		
@@ -180,4 +175,67 @@
 			return ob_get_clean();
 		}
 		
+		public function Ajax_setCityPrefix(){
+			$service = $this->app->input->get('service' , false , 'STRING'  ) ;
+//			echo'<pre>';print_r( $service );echo'</pre>'.__FILE__.' '.__LINE__;
+//			echo'<pre>';print_r( $this->app->input );echo'</pre>'.__FILE__.' '.__LINE__;
+			switch ( $service ){
+				case 'GoogleMap':
+					\CountryFilter\Helpers\Services\GoogleMap::getPrefixUrl();
+					break ;
+			}
+			die(__FILE__ .' '. __LINE__ );
+			
+			
+		}
+		
+		
 	}
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	

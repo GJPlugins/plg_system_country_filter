@@ -194,6 +194,9 @@
 			$helper = \CountryFilter\Helpers\Helper::instance( $this->params );
 			$task = $this->app->input->get( 'task', null, 'STRING' );
 			
+			
+			
+			
 			try
 			{
 				// Code that may throw an Exception or Error.
