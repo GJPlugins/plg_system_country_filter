@@ -102,7 +102,7 @@
 			 */
 			if( $this->params->get('country_autocomplete' , false ) )
 			{
-				$content->api['componentRestrictions']['country'] =  $this->params->get('country_autocomplete' , false );
+				$content->api['componentRestrictions']['country'] =  $this->params->get('country_autocomplete' , ["ru", "ua"] );
 			}#END IF
 			
 			
