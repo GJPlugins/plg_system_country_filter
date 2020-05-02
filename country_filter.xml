@@ -99,16 +99,11 @@
 				     description="COUNTRY_FILTER_TOP_CITY_DESC"
 				     class="top_city "
 				     showon="" />
-
-				 	
-
-
-
 			</fieldset>
 			<fieldset name="api">
 				<field name="google_map_api_key"
 					type="text"
-					default=""
+					default="XXXXXXXXXX"
 					class="google_map_api_key "
 					readonly=""
 					required="1"
