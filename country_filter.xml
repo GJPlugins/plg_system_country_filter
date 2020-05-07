@@ -23,7 +23,17 @@
     <config>
         <fields name="params">
             <fieldset name="basic">
-
+				<field
+						name="city_cookie"
+						type="list"
+						label="COUNTRY_FILTER_FIELD_COOKIE_LABEL"
+						description="COUNTRY_FILTER_FIELD_COOKIE_DESC"
+						default="1"
+						filter="integer"
+				>
+					<option value="1">COUNTRY_FILTER_OPTION_YEAR</option>
+					<option value="0">COUNTRY_FILTER_OPTION_SESSION</option>
+				</field>
             </fieldset>
             <fieldset name="module">
                 <field name="module_position"

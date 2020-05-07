@@ -2,7 +2,7 @@
  *
  * @constructor
  */
-var RegionSelect = function () {
+var RegionSelect = function ( InitNew ) {
     var $ = jQuery ;
     var self = this ;
     this.__v = '0.0.3';
@@ -11,48 +11,98 @@ var RegionSelect = function () {
 
 
 
-    this.Init = function () {
-        var $a = $('.js-rz-city a') ;
-        $a.on('click' , self.loadModalRegionSelect );
-        // self.addEventClck();
-    };
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-    
-    
-
-
-
-
-    
-
-
-
-
-    
-    
-    
-
-
     this.AjaxDefaultData = {
-        group : 'system',
-        plugin : 'country_filter' ,
+        group : this.__group,
+        plugin : this.__plugin ,
         option : 'com_ajax' ,
         format : 'json' ,
         task : null ,
     }
+
+    this.selector = '.js-rz-city a' ;
+    this.Init = function () {
+
+        var $a = $(this.selector) ;
+        $a.on('click' , self.loadModalRegionSelect );
+        this.getCityClient() ;
+
+        // self.addEventClck();
+    };
+    /**
+     * Установить город в модуле
+     * @param d obj
+     * {
+     *     cities_title:
+     *     regions_title :
+     *     country_title :
+     *
+     * }
+     */
+    this.changeCityHead = function ( d )
+    {
+        var titleText ;
+        var $headerCities = $(self.selector);
+
+        $headerCities.text(d.cities_title)
+
+        titleText = d.cities_title ;
+        if ( d.regions_title && d.regions_title !== d.cities_title  ){
+            titleText += ', ' + d.regions_title
+        }
+        titleText += ', ' +d.country_title;
+        $headerCities.attr('title' , titleText  )
+    };
+    this.getCityClient = function ()
+    {
+        var data = self.AjaxDefaultData;
+        data.task = 'Ajax_getCityClient' ;
+
+
+        wgnz11.getModul("Ajax").then(function (Ajax) {
+            Ajax.ReturnRespond = true ;
+            Ajax.send(data).then(function (r) {
+                var $headerCities = $(self.selector);
+                var d = r.data[0] ;
+                var titleText ;
+                console.log($headerCities)
+
+                if ( d.cities_title ){
+                    $headerCities.text(d.cities_title)
+                    titleText = d.cities_title ;
+
+                    if ( d.regions_title && d.regions_title !== d.cities_title  ){
+                        titleText += ', ' + d.regions_title
+                    }
+                    titleText += ', ' +d.country_title;
+                    $headerCities.attr('title' , titleText  )
+                }
+
+                console.log( r.data[0].cities_title )
+
+            });
+        })
+        // this.tippyInt();
+    }
+
+
+    this.tippyInt = function ()
+    {
+        wgnz11.__loadModul.Tippy().then(function(a){
+            console.log( typeof tippy )
+            // alert( self.selector )
+
+            setTimeout( function () {
+                if ( typeof tippy === 'function' ) {
+                    console.log( typeof tippy )
+                    tippy( self.selector , {
+                        content: 'Tooltip',
+                    });
+                }
+            } , 2000 )
+
+        })
+    };
+
     /**
      * Обработка события клик "Выбрать город"
      * slector :  .js-rz-city a
@@ -88,6 +138,8 @@ var RegionSelect = function () {
                         self.loadGoogleMap();
                     },
                     afterClose  : function () {
+                        $('.pac-container.pac-logo').remove() ;
+
                         /**
                          * Удалить CSS модального окна после закрытия
                          * Если оно было загружено не с Html модального окна
@@ -99,14 +151,22 @@ var RegionSelect = function () {
             });
         }
     };
+    this.AutocompleteLaoded = false ;
     /**
      * Подгрузить Googleapis Maps libraries=places
      */
     this.loadGoogleMap = function () {
         var gApi = Joomla.getOptions('gApi');
+
+        if ( self.AutocompleteLaoded   ) {
+            country_filter_initMap();
+            return ;
+        }
+
         wgnz11.load.js('https://maps.googleapis.com/maps/api/js?key='+gApi.api_key+'&libraries=places&callback=country_filter_initMap')
             .then(
                 function (a) {
+                    self.AutocompleteLaoded = true ;
                     console.log('Asset load - ', a)
                 },
                 function (err) {
@@ -114,15 +174,23 @@ var RegionSelect = function () {
                 }
             );
     };
+    if ( InitNew ){
+        this.Init()
+    }
 
-    this.Init()
 };
 
 /**
  * Колбек после загрузки Google Map
  */
 function country_filter_initMap() {
+
     var self = this ;
+    var RS = new RegionSelect();
+
+
+
+
     var options = Joomla.getOptions('gApi' , false);
 
     /**
@@ -181,7 +249,31 @@ function country_filter_initMap() {
             // Вернуть весь тезультат
             Ajax.ReturnRespond = true ;
             Ajax.send(data , 'ns_'+'country_filter'+'-'+'setCityPrefix' , {method : 'POST'}).then(function (res) {
-                console.log(res) ;
+                var Cookie = res.data[0].Cookie
+                console.log( 'Cookie ' , Cookie )
+                wgnz11.getModul('Storage_class').then(function () {
+                    var d = res.data[0]
+                    var headData = {
+                        cities_title : d.city.title ,
+                        regions_title : d.region.title ,
+                        country_title :d.country.title ,
+                    }
+                    Storage_class.set( 'country_filter' , res.data[0] );
+                    console.log(d)
+
+                    /**
+                     *     cities_title:
+                     *     regions_title :
+                     *     country_title :
+                     */
+                    RS.changeCityHead(headData)
+
+
+                })
+
+
+
+                console.log(res.data[0]) ;
             },function (err) {console.log(err)});
         });
 
@@ -202,6 +294,8 @@ function country_filter_initMap() {
     console.log( autocomplete )
 }
 
-new RegionSelect();
+new RegionSelect( true  );
+
+
 
 

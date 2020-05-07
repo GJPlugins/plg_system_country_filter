@@ -8,7 +8,9 @@
 	 */
 	
 	$doc = JFactory::getDocument();
-	
+	// $this->getCityData() ;
+//	echo'<pre>';print_r( $this->mapCityData );echo'</pre>'.__FILE__.' '.__LINE__;
+//	die(__FILE__ .' '. __LINE__ );
 	
 	/**
 	 * Отложенная загрузка скрипта управления
@@ -25,15 +27,23 @@
 	/**
 	 * Параметры из настроек плагина
 	 */
-	$default_str = $this->params->get('default_str' , 'Выберите город') ;
-	
+	$City  = $this->params->get('default_str' , 'Выберите город') ;
+//	$City = $this->mapCityData->get('cities_title' , $City  );
+
 	
 //		echo'<pre>';print_r( $this->params->get('default_str' , 'Выберите город') );echo'</pre>'.__FILE__.' '.__LINE__;
 //		die(__FILE__ .' '. __LINE__ );
 
 ?>
+<!--<link
+        rel="stylesheet"
+        href="https://unpkg.com/tippy.js@6/animations/scale.css"
+/>
+<script src="https://unpkg.com/@popperjs/core@2"></script>
+<script src="https://unpkg.com/tippy.js@6"></script>
+-->
 <div class="js-rz-city">
     <div class="header-cities"><span class="header-cities__label"><?= JText::_( 'COUNTRY_FILTER_CITY' )?></span>
-        <a class="header-cities__link link-dashed"><?= JText::_( $default_str )?></a>
+        <a class="header-cities__link link-dashed"><?= $City ?></a>
     </div>
 </div>

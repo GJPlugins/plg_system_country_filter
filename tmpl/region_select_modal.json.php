@@ -17,6 +17,18 @@
 		'Нижний Новгород',
 		'Казань',
 	];
+	$this->getCityData() ;
+	$separator = ', ' ;
+	$cities_title =  $this->mapCityData->get('cities_title' , null )  ;
+	$regions_title =  $this->mapCityData->get('regions_title' , null )  ;
+	$country_title =  $this->mapCityData->get('country_title' , null ) ;
+	
+	if( $cities_title == $regions_title ) $regions_title = null ; #END IF
+	$inpValue = !empty($cities_title) ? $cities_title : null ;
+	$inpValue .= !empty($regions_title) ? $separator . $regions_title : null ;
+	$inpValue .= !empty($country_title) ? $separator . $country_title : null ;
+ 
+	
 	$arrCityTop = $this->params->get('top_city' , false   );
 	$api_key = $this->params->get('google_map_api_key' , false ) ;
 	
@@ -90,7 +102,9 @@
                            autocomplete="off"
                            class="header-location__autocomplete-input ng-untouched ng-pristine ng-valid"
                            name="search"
-                           type="text" placeholder="Выберите свой город">
+                           type="text"
+                           value="<?= $inpValue ?>"
+                           placeholder="Выберите свой город">
                     <ul _ngcontent-c40="" class="header-location__autocomplete-list dialog"><!----><!----><!---->
                         <!----></ul><!---->
                 </auto-complete><!----><p _ngcontent-c39=""
