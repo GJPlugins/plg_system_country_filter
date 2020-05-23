@@ -19,23 +19,24 @@
 	];
 	$this->getCityData() ;
 	$separator = ', ' ;
-	$cities_title =  $this->mapCityData->get('cities_title' , null )  ;
-	$regions_title =  $this->mapCityData->get('regions_title' , null )  ;
-	$country_title =  $this->mapCityData->get('country_title' , null ) ;
+	$map =  $this->mapCityData->get('map' , null )  ;
+	
+	$city =  $this->mapCityData->get('city' , null )  ;
+	$cities_title =  $city->title ;
+	
+	$regions =  $this->mapCityData->get('region' , null )  ;
+	$regions_title =  $regions->title  ;
+	
+	$country =  $this->mapCityData->get('country' , null ) ;
+	$country_title =  $country->title ;
 	
 	if( $cities_title == $regions_title ) $regions_title = null ; #END IF
 	$inpValue = !empty($cities_title) ? $cities_title : null ;
 	$inpValue .= !empty($regions_title) ? $separator . $regions_title : null ;
 	$inpValue .= !empty($country_title) ? $separator . $country_title : null ;
  
-	
 	$arrCityTop = $this->params->get('top_city' , false   );
 	$api_key = $this->params->get('google_map_api_key' , false ) ;
-	
-	
-	/*echo'<pre>';print_r( $arrCityTop );echo'</pre>'.__FILE__.' '.__LINE__;
-	die(__FILE__ .' '. __LINE__ );*/
-	
 	
 	
 ?>
@@ -53,7 +54,7 @@
 
 <div _ngcontent-c41="" class="modal__holder modal__holder_show_animation modal__holder_size_medium">
     <div _ngcontent-c41="" class="modal__header">
-        <h3 _ngcontent-c41="" class="modal__heading"> Выберите свой город </h3>
+        <h3 _ngcontent-c41="" class="modal__heading">Выберите свой город</h3>
         <button _ngcontent-c41="" class="modal__close" type="button" aria-label="Закрыть модальное окно">
             <svg _ngcontent-c41="" height="16" pointer-events="none" width="16">
                 <use _ngcontent-c41="" xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="#icon-close-modal"></use>

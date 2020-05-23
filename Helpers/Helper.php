@@ -39,7 +39,21 @@
 		 * @since version
 		 */
 		public $mapCityData;
-		
+		/**
+		 *
+		 * @package     CountryFilter\Helpers
+		 *
+		 * @var Client
+		 * @since 3.9
+		 */
+		private $Client;
+		/**
+		 * @var string[]
+		 * @since version
+		 */
+		private  static  $GoogleApiFieldArr = [
+			'country_autocomplete',
+		];
 		
 		/**
 		 * helper constructor.
@@ -80,10 +94,6 @@
 			return self::$instance;
 		}#END FN
 		
-		private  static  $GoogleApiFieldArr = [
-			'country_autocomplete',
-		];
-		
 		/**
 		 * Загрузка контента для модального окна
 		 * @return object[]
@@ -91,10 +101,28 @@
 		 * @since version
 		 */
 		public function getModuleAjax(){
+			
+			
+			
 			$format = $this->app->input->get('format' , 'html' , 'WORD' );
 			$moduleName = $this->app->input->get('moduleName' , 'html' , 'STRING' );
 			$moduleName .= ($format=='html'? null :'.'.$format);
-			$content = $this->getModul( $moduleName ) ;
+			
+			
+			try
+			{
+				// Code that may throw an Exception or Error.
+				$content = $this->getModul( $moduleName );
+			} catch (Exception $e)
+			{
+				// Executed only in PHP 5, will not be reached in PHP 7
+				echo 'Выброшено исключение: ', $e->getMessage(), "\n";
+				echo'<pre>';print_r( $e );echo'</pre>'.__FILE__.' '.__LINE__;
+				die(__FILE__ .' '. __LINE__ );
+			}  
+			
+			
+			
 			
 			$content->api = [];
 			$content->api['api_key'] =  $this->params->get('google_map_api_key' , false );
@@ -115,14 +143,22 @@
 		
 		
 		public function getCityData(){
-			// JFactory::getApplication()->isClient('site')
-			$this->mapCityData = new \Joomla\Registry\Registry() ;
-			$cityCode = $this->app->input->cookie->get(\JApplicationHelper::getHash('city'));
 			
+			$this->mapCityData = new \Joomla\Registry\Registry() ;
+			
+			$cookieId = \JApplicationHelper::getHash('city') ;
+			$cityCode = $this->app->input->cookie->get( $cookieId );
+			
+			
+			# Если id_map не существует в куках - ищем по Ip
 			if( !$cityCode )
 			{
-				//echo'<pre>';print_r( $cityCode );echo'</pre>'.__FILE__.' '.__LINE__;
-				// die(__FILE__ .' '. __LINE__ );
+				$this->Client = new \CountryFilter\Helpers\Client();
+				$r =  $this->Client->checkIpAddress() ;
+				
+			 
+				
+				$cityCode = $r->id_map ;
 			}#END IF
 			
 			$tableMAP = \CountryFilter\Helpers\Services::MAP_TABLE ;
@@ -133,17 +169,27 @@
 			
 			$query = $this->db->getQuery( true );
 			$select = [
-				$this->db->quoteName( 'map'  ).'.'.$this->db->quoteName( '*'  ),
 				$this->db->quoteName( 'map'  ).'.'.$this->db->quoteName( 'id',   'map_id' ),
+				$this->db->quoteName( 'map'  ).'.'.$this->db->quoteName( 'country_id' , 'map_country_id'  ),
+				$this->db->quoteName( 'map'  ).'.'.$this->db->quoteName( 'region_id' , 'map_region_id'  ),
+				$this->db->quoteName( 'map'  ).'.'.$this->db->quoteName( 'city_id' , 'map_city_id'  ),
+				$this->db->quoteName( 'map'  ).'.'.$this->db->quoteName( 'sef' , 'map_sef'  ),
+				$this->db->quoteName( 'map'  ).'.'.$this->db->quoteName( 'params' , 'map_params'  ),
+				$this->db->quoteName( 'map'  ).'.'.$this->db->quoteName( 'published' , 'map_published'  ),
+				$this->db->quoteName( 'map'  ).'.'.$this->db->quoteName( 'ordering' , 'map_ordering'  ),
 				
-				$this->db->quoteName( 'country'  ).'.'.$this->db->quoteName( 'title', 'country_title'  ),
+				
+				$this->db->quoteName( 'country'  ).'.'.$this->db->quoteName( 'id',          'country_id'  ),
+				$this->db->quoteName( 'country'  ).'.'.$this->db->quoteName( 'title',       'country_title'  ),
 				$this->db->quoteName( 'country'  ).'.'.$this->db->quoteName( 'short_title', 'country_short_title'  ),
 				
-				$this->db->quoteName( 'regions'  ).'.'.$this->db->quoteName( 'title' , 'regions_title'  ),
-				$this->db->quoteName( 'regions'  ).'.'.$this->db->quoteName( 'short_title' , 'regions_short_title'  ),
+				$this->db->quoteName( 'regions'  ).'.'.$this->db->quoteName( 'id' ,         'region_id'  ),
+				$this->db->quoteName( 'regions'  ).'.'.$this->db->quoteName( 'title' ,      'region_title'  ),
+				$this->db->quoteName( 'regions'  ).'.'.$this->db->quoteName( 'short_title' ,'region_short_title'  ),
 				
-				$this->db->quoteName( 'cities'  ).'.'.$this->db->quoteName( 'title' , 'cities_title'   ),
-				$this->db->quoteName( 'cities'  ).'.'.$this->db->quoteName( 'short_title' , 'cities_short_title'   ),
+				$this->db->quoteName( 'cities'  ).'.'.$this->db->quoteName( 'id' ,          'city_id'   ),
+				$this->db->quoteName( 'cities'  ).'.'.$this->db->quoteName( 'title' ,       'city_title'   ),
+				$this->db->quoteName( 'cities'  ).'.'.$this->db->quoteName( 'short_title' , 'city_short_title'   ),
 			];
 			$where = [
 				$this->db->quoteName( 'map'  ).'.'.$this->db->quoteName( 'id' ).'='.$this->db->quote( $cityCode ) ,
@@ -162,10 +208,33 @@
 			
 			$this->db->setQuery( $query );
 			$mapCityData = $this->db->loadAssoc() ;
-			$this->mapCityData->loadArray( $mapCityData )   ;
+			$tArr = [   'map' , 'country' , 'region' , 'city'  ];
+			$resData = [] ;
+			$resData['Cookie'] = $cookieId ;
+			foreach ( $tArr as  $t)
+			{
+				switch ($t) {
+					case 'map' :
+						$resData['map']['id'] = $mapCityData['map_id'];
+						$resData['map']['map_id'] = $mapCityData['map_id'];
+						$resData['map']['country_id'] = $mapCityData['map_country_id'];
+						$resData['map']['region_id'] = $mapCityData['map_region_id'];
+						$resData['map']['city_id'] = $mapCityData['map_city_id'];
+						$resData['map']['sef'] = $mapCityData['map_sef'];
+						$resData['map']['params'] = $mapCityData['map_params'];
+						$resData['map']['published'] = $mapCityData['map_published'];
+						$resData['map']['ordering'] = $mapCityData['map_ordering'];
+						break ;
+					default :
+						$resData[$t]['id'] = $mapCityData[$t.'_id'];
+						$resData[$t]['title'] = $mapCityData[$t.'_title'];
+						$resData[$t]['short_title'] = $mapCityData[$t.'_short_title'];
+				}
 			
-//			echo'<pre>';print_r( $mapCityData );echo'</pre>'.__FILE__.' '.__LINE__;
-//			die(__FILE__ .' '. __LINE__ );
+			}#END FOREACH
+			
+			$this->mapCityData->loadArray( $resData )   ;
+			
 			 return true ;
 		}
 		
@@ -178,10 +247,6 @@
 		 */
 		public function getModul ( $moduleName = 'region_select' , $options = []   )
 		{
-			
-			// $this->getCityData();
-			
-			
 			\GNZ11\Core\Js::instance();
 			$objRegistry = new Registry;
 			$settingModule = [
@@ -208,10 +273,6 @@
 			$settingModule = array_merge_recursive( $settingModule , $options ) ;
 			$objRegistry->loadArray($settingModule);
 			$fakeModule = $objRegistry->toObject() ;
-			
-			
-		 
-//
 			return $fakeModule ;
 		}
 		
@@ -238,6 +299,7 @@
 		{
 			$path = \JPluginHelper::getLayoutPath( 'system', 'country_filter', $layout );
 			
+			
 			// Render the layout
 			ob_start();
 			include $path;
@@ -246,6 +308,7 @@
 		
 		public function Ajax_getCityClient(){
 			$this->getCityData() ;
+			
 			return $this->mapCityData ;
 			
 		}
@@ -266,6 +329,29 @@
 			
 		}
 		
+		/**
+		 * Получить все сокращения для регионов
+		 *
+		 * @since version
+		 */
+		public function getAllMapSef(){
+			$tableMAP = \CountryFilter\Helpers\Services::MAP_TABLE ;
+			$query = $this->db->getQuery( true );
+			$select = [
+				$this->db->quoteName( 'map'  ).'.'.$this->db->quoteName( 'sef' , 'map_sef'  ),
+			];
+			
+			$query->select($select) ;
+			$query->from( $this->db->quoteName( $tableMAP , 'map'   )  );
+			$query->where( $this->db->quoteName('sef') .'<>' .$this->db->quote('') ) ;
+			$this->db->setQuery( $query );
+			
+			$res = $this->db->loadColumn();
+			
+			
+			return $res ;
+			
+		}
 		
 		/**
 		 * Set the city cookie

@@ -24,63 +24,73 @@ var RegionSelect = function ( InitNew ) {
 
         var $a = $(this.selector) ;
         $a.on('click' , self.loadModalRegionSelect );
+
         this.getCityClient() ;
 
         // self.addEventClck();
     };
+
     /**
-     * Установить город в модуле
+     * Установить Название города в модуле
      * @param d obj
-     * {
-     *     cities_title:
-     *     regions_title :
-     *     country_title :
      *
-     * }
      */
     this.changeCityHead = function ( d )
     {
         var titleText ;
         var $headerCities = $(self.selector);
 
-        $headerCities.text(d.cities_title)
+        titleText = d.city.title ;
 
-        titleText = d.cities_title ;
-        if ( d.regions_title && d.regions_title !== d.cities_title  ){
-            titleText += ', ' + d.regions_title
+        if (!titleText ) return ;
+
+        $headerCities.text(titleText)
+        if ( d.region.title && d.region.title !== d.city.title  ){
+            titleText += ', ' + d.region.title
         }
-        titleText += ', ' +d.country_title;
-        $headerCities.attr('title' , titleText  )
+        titleText += ', ' +d.country.title;
+        $headerCities.attr('title' , titleText  );
+
     };
+
     this.getCityClient = function ()
     {
-        var data = self.AjaxDefaultData;
-        data.task = 'Ajax_getCityClient' ;
-
-
-        wgnz11.getModul("Ajax").then(function (Ajax) {
-            Ajax.ReturnRespond = true ;
-            Ajax.send(data).then(function (r) {
-                var $headerCities = $(self.selector);
-                var d = r.data[0] ;
-                var titleText ;
-                console.log($headerCities)
-
-                if ( d.cities_title ){
-                    $headerCities.text(d.cities_title)
-                    titleText = d.cities_title ;
-
-                    if ( d.regions_title && d.regions_title !== d.cities_title  ){
-                        titleText += ', ' + d.regions_title
+        var countryFilterKey = false ;
+        var dataStorage = null ;
+        wgnz11.getModul('Storage_class').then(function () {
+            countryFilterKey = Storage_class.isset('country_filter');
+            if ( !countryFilterKey ){
+                get() ; return   ;
+            }
+            dataStorage = Storage_class.get( 'country_filter' );
+            self.changeCityHead(dataStorage);
+            console.log( dataStorage );
+        });
+        if ( countryFilterKey ) return   ;
+        function get()
+        {
+            var data = self.AjaxDefaultData;
+            data.task = 'Ajax_getCityClient' ;
+            wgnz11.getModul("Ajax").then(function (Ajax) {
+                Ajax.ReturnRespond = true ;
+                Ajax.send(data).then(function (r) {
+                    var d = r.data[0] ;
+                    self.changeCityHead(d);
+                    if ( !r.data[0].map.map_id ){
+                        console.log( d );
                     }
-                    titleText += ', ' +d.country_title;
-                    $headerCities.attr('title' , titleText  )
-                }
 
-                console.log( r.data[0].cities_title )
+                    if (!countryFilterKey && r.data[0].map.map_id  ){
+                        console.log( r.data[0] );
+                    }
 
-            });
-        })
+
+                    console.log( r.data[0].map.map_id)
+
+                });
+            })
+        }
+
         // this.tippyInt();
     }
 
@@ -187,11 +197,8 @@ function country_filter_initMap() {
 
     var self = this ;
     var RS = new RegionSelect();
-
-
-
-
     var options = Joomla.getOptions('gApi' , false);
+
 
     /**
      * Массив TYPES указывает явный тип или коллекцию типов,
@@ -253,20 +260,12 @@ function country_filter_initMap() {
                 console.log( 'Cookie ' , Cookie )
                 wgnz11.getModul('Storage_class').then(function () {
                     var d = res.data[0]
-                    var headData = {
-                        cities_title : d.city.title ,
-                        regions_title : d.region.title ,
-                        country_title :d.country.title ,
-                    }
+
                     Storage_class.set( 'country_filter' , res.data[0] );
                     console.log(d)
 
-                    /**
-                     *     cities_title:
-                     *     regions_title :
-                     *     country_title :
-                     */
-                    RS.changeCityHead(headData)
+                    // Установить Название города в модуле
+                    RS.changeCityHead(d)
 
 
                 })
