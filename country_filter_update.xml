@@ -45,7 +45,7 @@
         <php_minimum>5.3.10</php_minimum>
     </update>
     <update>
-        <name>PlgSystemCountryFilterUpdate</name>
+        <name><![CDATA[ Plugin System Country Filter Update ]]></name>
         <description><![CDATA[Joomla - Country Filter]]></description>
         <type>plugin</type>
         <folder>system</folder>
