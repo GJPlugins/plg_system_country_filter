@@ -44,4 +44,19 @@
         <targetplatform name="joomla" version=".*"/>
         <php_minimum>5.3.10</php_minimum>
     </update>
+    <update>
+        <name>PlgSystemCountryFilterUpdate</name>
+        <description><![CDATA[Joomla - Country Filter]]></description>
+        <type>plugin</type>
+        <folder>system</folder>
+        <element>country_filter</element>
+        <version>0.0.5</version>
+        <client>0</client>
+        <infourl title="Joomla!">https://www.joomla.org/announcements/release-news/5765-joomla-3-9-6-release.html</infourl>
+        <downloads>
+            <downloadurl type="full" format="zip">https://github.com/GJPlugins/plg_system_country_filter/archive/master.zip</downloadurl>
+        </downloads>
+        <targetplatform name="joomla" version=".*"/>
+        <php_minimum>5.3.10</php_minimum>
+    </update>
 </updates>

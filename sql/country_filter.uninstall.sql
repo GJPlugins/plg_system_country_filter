@@ -8,6 +8,13 @@ DROP TABLE IF EXISTS `#__plg_system_country_filter_regions`;
 -- Справочник названий городов
 DROP TABLE IF EXISTS `#__plg_system_country_filter_cities`;
 --
+-- Справочник IP Адресов
+DROP TABLE IF EXISTS `#__plg_system_country_filter_ip`;
+
+
+--
 -- Сводная таблица для города
 DROP TABLE IF EXISTS `#__plg_system_country_filter_city_map`;
+
+
 
