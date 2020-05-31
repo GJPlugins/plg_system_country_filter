@@ -9,7 +9,7 @@
 	
 	$doc = JFactory::getDocument();
 	
-	$arrCityTop = [
+	$arrCityTop_Def = [
 		'Москва',
 		'Санкт-Петербург',
 		'Новосибирск',
@@ -17,18 +17,21 @@
 		'Нижний Новгород',
 		'Казань',
 	];
+	
+	
+	
 	$this->getCityData() ;
 	$separator = ', ' ;
 	$map =  $this->mapCityData->get('map' , null )  ;
 	
 	$city =  $this->mapCityData->get('city' , null )  ;
-	$cities_title =  $city->title ;
+	$cities_title =  (isset( $city->title ) ? $city->title : null ) ;
 	
 	$regions =  $this->mapCityData->get('region' , null )  ;
-	$regions_title =  $regions->title  ;
+	$regions_title =  (isset( $regions->title ) ? $regions->title : null ) ;
 	
 	$country =  $this->mapCityData->get('country' , null ) ;
-	$country_title =  $country->title ;
+	$country_title =  (isset( $country->title ) ? $country->title : null ) ;
 	
 	if( $cities_title == $regions_title ) $regions_title = null ; #END IF
 	$inpValue = !empty($cities_title) ? $cities_title : null ;
@@ -36,6 +39,18 @@
 	$inpValue .= !empty($country_title) ? $separator . $country_title : null ;
  
 	$arrCityTop = $this->params->get('top_city' , false   );
+	if( !is_array($arrCityTop)  )
+	{
+		$arrCityTop = $arrCityTop_Def ;
+	}#END IF
+	
+    # Если TOP подсказки отключены
+	if( !$this->params->get('on_top_city' , true   ) )
+	{
+		$arrCityTop = [] ;
+	}#END IF
+ 
+ 
 	$api_key = $this->params->get('google_map_api_key' , false ) ;
 	
 	

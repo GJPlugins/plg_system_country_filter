@@ -45,6 +45,7 @@
 		public function getByIp( $stage = null ){
 			
 //			$this->UserHostAddress = '178.209.70.88' ;
+			
 			$_ip = $this->db->quote(  $this->UserHostAddress ) ;
 			$_t = $this->db->quoteName( $this->table ) ;
 			
@@ -61,16 +62,18 @@
 			$_ip_end = $this->db->quote(  $_ip_end ) ;
 			
 			$query = $this->db->getQuery( true );
+			
 			$select =  [
-				$this->db->quoteName('*') ,
+				'*' ,
 				'INET_NTOA(' .$this->db->quoteName( 'ip'  ) . ') AS ip' ,
 			];
+			
+			
 			$where = '' ;
 			$where .= $this->db->quoteName( 'ip'  ) . " = INET_ATON (" . $_ip . ")" ;
 			
 			if( $stage )
 			{
-				
 				$where .= ' OR (';
 				$where .= $this->db->quoteName( 'ip' ) . " > INET_ATON (" . $_ip_start . ")";
 				$where .= ' AND ';
@@ -88,9 +91,24 @@
 			
 //			echo'<pre>';print_r( $stage );echo'</pre>'.__FILE__.' '.__LINE__;
 //			echo 'Query Dump :'.__FILE__ .' Line:'.__LINE__  .$query->dump() ;
-			
+ 
 			$this->db->setQuery($query) ;
-			$res = $this->db->loadObject() ;
+			
+			
+			
+			try
+			{
+			    // Code that may throw an Exception or Error.
+				$res = $this->db->loadObject() ;
+			}
+			catch (\Exception $e)
+			{
+			    // Executed only in PHP 5, will not be reached in PHP 7
+			    echo 'Выброшено исключение: ',  $e->getMessage(), "\n";
+			    echo'<pre>';print_r( $e );echo'</pre>'.__FILE__.' '.__LINE__;
+			    die(__FILE__ .' '. __LINE__ );
+			}
+			
 			
 			if( !$res && !$stage )
 			{

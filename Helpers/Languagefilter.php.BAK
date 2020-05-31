@@ -1,0 +1,234 @@
+<?php
+	
+	
+	namespace CountryFilter\Helpers;
+	
+	
+	class Languagefilter
+	{
+		private $app;
+		public static $instance;
+		public   $sefs;
+		public   $default_lang;
+		protected $lang_codes;
+		private $paramsLanguageFilterPlg;
+		
+		/**
+		 * helper constructor.
+		 *
+		 * @throws \Exception
+		 * @since 3.9
+		 */
+		private function __construct ( $options = array() )
+		{
+			$this->app = \JFactory::getApplication();
+			$this->sefs         = \JLanguageHelper::getLanguages('sef');
+			$this->default_lang = \JComponentHelper::getParams('com_languages')->get('site', 'en-GB');
+			$this->lang_codes   = \JLanguageHelper::getLanguages('lang_code');
+			$this->paramsLanguageFilterPlg = $this->getParamsLanguageFilterPlg();
+			
+			
+			return $this;
+		}#END FN
+		/**
+		 * @param array $options
+		 *
+		 * @return helper
+		 * @throws \Exception
+		 * @since 3.9
+		 */
+		public static function instance ( $options = array() )
+		{
+			if( self::$instance === null )
+			{
+				self::$instance = new self( $options );
+			}
+			return self::$instance;
+		}#END FN
+		
+		
+		
+		
+		public function parseRuleLanguage(&$router, \Joomla\CMS\Uri\Uri &$uri){
+			$path = $uri->getPath();
+			$parts = explode( '/', $path );
+			# получаем префикс языка
+			$sef = $parts[0];
+			
+			// если нет кода языка URL?
+			if (!isset($this->sefs[$sef]))
+			{
+				// Проверьте, установлен ли код удаления URL-адреса по умолчанию
+				if ( $this->paramsLanguageFilterPlg->get('remove_default_prefix', 0) )
+				{
+					# Если есть первый параметр в запросе
+					if ($parts[0])
+					{
+						// Загружаем страницу языка сайта по умолчанию
+						$lang_code = $this->default_lang;
+					}
+					else
+					{
+						// We check for an existing language cookie
+						$lang_code = $this->getLanguageCookie();
+					}
+				}
+				else
+				{
+					$lang_code = $this->getLanguageCookie();
+				}
+				
+				# Нет кода языка. Попробуйте использовать настройки браузера
+				# или язык сайта по умолчанию
+				// No language code. Try using browser settings or default site language
+				if (!$lang_code && $this->paramsLanguageFilterPlg->get('detect_browser', 0) == 1)
+				{
+					$lang_code = \JLanguageHelper::detectLanguage();
+				}
+				
+				if (!$lang_code)
+				{
+					$lang_code = $this->default_lang;
+				}
+				
+				if ($lang_code === $this->default_lang && $this->paramsLanguageFilterPlg->get('remove_default_prefix', 0))
+				{
+					$found = true;
+				}
+			}
+			else
+			{
+				// We found our language
+				$found = true;
+				$lang_code = $this->sefs[$sef]->lang_code;
+				
+				// If we found our language, but its the default language and we don't want a prefix for that, we are on a wrong URL.
+				// Or we try to change the language back to the default language. We need a redirect to the proper URL for the default language.
+				if ($lang_code === $this->default_lang && $this->paramsLanguageFilterPlg->get('remove_default_prefix', 0))
+				{
+					// Create a cookie.
+					$this->setLanguageCookie($lang_code);
+					
+					$found = false;
+					array_shift($parts);
+					$path = implode('/', $parts);
+				}
+				
+				// We have found our language and the first part of our URL is the language prefix
+				if ($found)
+				{
+					array_shift($parts);
+					
+					// Empty parts array when "index.php" is the only part left.
+					if (count($parts) === 1 && $parts[0] === 'index.php')
+					{
+						$parts = array();
+					}
+					
+					$uri->setPath(implode('/', $parts));
+				}
+			}
+			
+			// Установите запрос var.
+			$this->app->input->set('language', $lang_code);
+			$this->app->set('language', $lang_code);
+			
+			
+			
+			
+			echo'<pre>';print_r( $sef );echo'</pre>'.__FILE__.' '.__LINE__.'  ((  ::'.__FUNCTION__.' - $this->paramsLanguageFilterPlg ))<br>';
+			echo'<pre>';print_r( $uri );echo'</pre>'.__FILE__.' '.__LINE__.'  ((  ::'.__FUNCTION__.' - $this->paramsLanguageFilterPlg ))<br>';
+			echo'<pre>';print_r( $this->sefs );echo'</pre>'.__FILE__.' '.__LINE__.'  ((  ::'.__FUNCTION__.' - $this->paramsLanguageFilterPlg ))<br>';
+			echo'<pre>';print_r( $this->getLanguageCookie() );echo'</pre>'.__FILE__.' '.__LINE__.'  ((  ::'.__FUNCTION__.' - $this->paramsLanguageFilterPlg ))<br>';
+//			die('<b>DIE : '.__FILE__.' '.__LINE__.'  => '.__CLASS__.'::'.__FUNCTION__.'</b>' );
+			
+			echo'<pre>';print_r( $this->sefs[$sef] );echo'</pre>'.__FILE__.' '.__LINE__.'  ((  ::'.__FUNCTION__.' - $this->sefs[$sef] ))<br>';
+			
+			
+			// если нет кодв языка URL?
+			if (!isset($this->sefs[$sef]))
+			{
+				
+			}else
+			{
+				
+			}
+		}
+		/**
+		 * Set the language cookie
+		 *
+		 * @param   string  $languageCode  The language code for which we want to set the cookie
+		 *
+		 * @return  void
+		 *
+		 * @since   3.4.2
+		 */
+		private function setLanguageCookie($languageCode)
+		{
+			// If is set to use language cookie for a year in plugin params, save the user language in a new cookie.
+			if ((int) $this->paramsLanguageFilterPlg->get('lang_cookie', 0) === 1)
+			{
+				// Create a cookie with one year lifetime.
+				$this->app->input->cookie->set(
+					\JApplicationHelper::getHash('language'),
+					$languageCode,
+					time() + 365 * 86400,
+					$this->app->get('cookie_path', '/'),
+					$this->app->get('cookie_domain', ''),
+					$this->app->isHttpsForced(),
+					true
+				);
+			}
+			// If not, set the user language in the session (that is already saved in a cookie).
+			else
+			{
+				\JFactory::getSession()->set('plg_system_languagefilter.language', $languageCode);
+			}
+		}
+		/**
+		 * Get the language cookie
+		 *
+		 * @return  string
+		 *
+		 * @since   3.4.2
+		 */
+		private function getLanguageCookie()
+		{
+			// Is is set to use a year language cookie in plugin params, get the user language from the cookie.
+			if ((int) $this->paramsLanguageFilterPlg->get('lang_cookie', 0) === 1)
+			{
+				$languageCode = $this->app->input->cookie->get( \JApplicationHelper::getHash('language'));
+			}
+			// Else get the user language from the session.
+			else
+			{
+				$languageCode = \JFactory::getSession()->get('plg_system_languagefilter.language');
+			}
+			
+			// Let's be sure we got a valid language code. Fallback to null.
+			if (!array_key_exists($languageCode, $this->lang_codes))
+			{
+				$languageCode = null;
+			}
+			
+			return $languageCode;
+		}
+		
+		/**
+		 * Получить параметры плагина /system/languagefilter
+		 * @return mixed
+		 */
+		private function getParamsLanguageFilterPlg ()
+		{
+			/**
+			 * Получить все параметры плагина в виде массива
+			 */
+			$plugin = \Joomla\CMS\Plugin\PluginHelper::getPlugin('system', 'languagefilter');
+			$Registry = new \Joomla\Registry\Registry();
+			return   $Registry->loadObject( json_decode( $plugin->params )) ;
+			
+		}
+		
+		
+		
+	}

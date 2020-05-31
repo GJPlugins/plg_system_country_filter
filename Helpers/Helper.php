@@ -156,8 +156,10 @@
 				$this->Client = new \CountryFilter\Helpers\Client();
 				$r =  $this->Client->checkIpAddress() ;
 				
-			 
-				
+				if( empty( $r ) )
+				{
+					return [] ;
+				}#END IF
 				$cityCode = $r->id_map ;
 			}#END IF
 			
@@ -181,15 +183,15 @@
 				
 				$this->db->quoteName( 'country'  ).'.'.$this->db->quoteName( 'id',          'country_id'  ),
 				$this->db->quoteName( 'country'  ).'.'.$this->db->quoteName( 'title',       'country_title'  ),
-				$this->db->quoteName( 'country'  ).'.'.$this->db->quoteName( 'short_title', 'country_short_title'  ),
+//				$this->db->quoteName( 'country'  ).'.'.$this->db->quoteName( 'short_title', 'country_short_title'  ),
 				
 				$this->db->quoteName( 'regions'  ).'.'.$this->db->quoteName( 'id' ,         'region_id'  ),
 				$this->db->quoteName( 'regions'  ).'.'.$this->db->quoteName( 'title' ,      'region_title'  ),
-				$this->db->quoteName( 'regions'  ).'.'.$this->db->quoteName( 'short_title' ,'region_short_title'  ),
+//				$this->db->quoteName( 'regions'  ).'.'.$this->db->quoteName( 'short_title' ,'region_short_title'  ),
 				
 				$this->db->quoteName( 'cities'  ).'.'.$this->db->quoteName( 'id' ,          'city_id'   ),
 				$this->db->quoteName( 'cities'  ).'.'.$this->db->quoteName( 'title' ,       'city_title'   ),
-				$this->db->quoteName( 'cities'  ).'.'.$this->db->quoteName( 'short_title' , 'city_short_title'   ),
+//				$this->db->quoteName( 'cities'  ).'.'.$this->db->quoteName( 'short_title' , 'city_short_title'   ),
 			];
 			$where = [
 				$this->db->quoteName( 'map'  ).'.'.$this->db->quoteName( 'id' ).'='.$this->db->quote( $cityCode ) ,
@@ -204,7 +206,7 @@
 			$query->from( $this->db->quoteName( $tableMAP , $as  )  );
 			$query->where( $where );
 			
-//			echo 'Query Dump :'.__FILE__ .' Line:'.__LINE__  .$query->dump() ;
+			echo 'Query Dump :'.__FILE__ .' Line:'.__LINE__  .$query->dump() ;
 			
 			$this->db->setQuery( $query );
 			$mapCityData = $this->db->loadAssoc() ;
@@ -310,7 +312,6 @@
 			$this->getCityData() ;
 			
 			return $this->mapCityData ;
-			
 		}
 		
 		public function Ajax_setCityPrefix(){

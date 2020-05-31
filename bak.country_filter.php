@@ -91,10 +91,6 @@
 		{
 			if( !$this->app->isClient( 'site' ) ) return false ; #END IF
 			
-			echo'<pre>';print_r( JRouter::PROCESS_DURING );echo'</pre>'.__FILE__.' '.__LINE__;
-			die(__FILE__ .' '. __LINE__ );
-			return true ; 
-			
 			$m = $this->app->getMenu();
 			
 			$helper = \CountryFilter\Helpers\Helper::instance( $this->params );

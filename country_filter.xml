@@ -107,6 +107,16 @@
                 		<option value="5">Нижний Новгород</option>
                 		<option value="6">Казань</option>
                 	</field>-->
+				<field name="on_top_city"
+					type="radio"
+					default="1"
+					label="COUNTRY_FILTER_ON_TOP_CITY"
+					description="COUNTRY_FILTER_ON_TOP_CITY_DESC"
+					class="btn-group btn-group-yesno">
+					<option value="1">JYES</option>
+					<option value="0">JNO</option>
+				</field>
+
 
 				 <field name="top_city"
 				     type="sql"
@@ -115,19 +125,19 @@
 				 			value_field="title"
 				     multiple="1"
 				     translate="false"
-				     header="Пожалуйста выберите"
+				     header=""
 				     label="COUNTRY_FILTER_TOP_CITY"
 				     description="COUNTRY_FILTER_TOP_CITY_DESC"
 				     class="top_city "
-				     showon="" />
+				     showon="on_top_city:1" />
 			</fieldset>
 			<fieldset name="api">
 				<field name="google_map_api_key"
 					type="text"
-					default="XXXXXXXXXX"
+					default=""
 					class="google_map_api_key "
 					readonly=""
-					required="1"
+					required=""
 					label="COUNTRY_FILTER_GOOGLE_MAP_API_KEY"
 					description="COUNTRY_FILTER_GOOGLE_MAP_API_KEY_DESC"
 					showon=""
@@ -179,6 +189,7 @@
 </extension>
 
 <!--
+
 
 https://github.com/gartes/GNZ11/archive/master.zip
 https://github.com/GJPlugins/plg_system_country_filter/archive/master.zip

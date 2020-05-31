@@ -74,7 +74,11 @@ var RegionSelect = function ( InitNew ) {
             wgnz11.getModul("Ajax").then(function (Ajax) {
                 Ajax.ReturnRespond = true ;
                 Ajax.send(data).then(function (r) {
+
                     var d = r.data[0] ;
+                    // Если результат не чего не вернул
+                    if (  !d.length ) return ;
+
                     self.changeCityHead(d);
                     if ( !r.data[0].map.map_id ){
                         console.log( d );
@@ -167,6 +171,8 @@ var RegionSelect = function ( InitNew ) {
      */
     this.loadGoogleMap = function () {
         var gApi = Joomla.getOptions('gApi');
+
+        if ( !gApi.api_key ) return;
 
         if ( self.AutocompleteLaoded   ) {
             country_filter_initMap();
