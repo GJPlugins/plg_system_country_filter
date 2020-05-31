@@ -2,14 +2,20 @@
  *
  * @constructor
  */
-var RegionSelect = function ( InitNew ) {
+
+
+
+window.RegionSelect = function ( InitNew ) {
     var $ = jQuery ;
     var self = this ;
     this.__v = '0.0.3';
     this.__group = 'system' ;
     this.__plugin = 'country_filter' ;
 
-
+this.selectos = {
+        cityTop : 'a.header-location__popular-link , p.header-location__search-example a' ,
+            inputCityAutocomplete : '#pac-input' ,
+    };
 
     this.AjaxDefaultData = {
         group : this.__group,
@@ -20,15 +26,22 @@ var RegionSelect = function ( InitNew ) {
     }
 
     this.selector = '.js-rz-city a' ;
+
+
+
+
     this.Init = function () {
 
         var $a = $(this.selector) ;
         $a.on('click' , self.loadModalRegionSelect );
 
         this.getCityClient() ;
-
+        console.log( this )
         // self.addEventClck();
     };
+
+
+
 
     /**
      * Установить Название города в модуле
@@ -178,7 +191,6 @@ var RegionSelect = function ( InitNew ) {
             country_filter_initMap();
             return ;
         }
-
         wgnz11.load.js('https://maps.googleapis.com/maps/api/js?key='+gApi.api_key+'&libraries=places&callback=country_filter_initMap')
             .then(
                 function (a) {
@@ -196,6 +208,10 @@ var RegionSelect = function ( InitNew ) {
 
 };
 
+window.RegionSelect.prototype = new GNZ11() ;
+
+
+
 /**
  * Колбек после загрузки Google Map
  */
@@ -204,6 +220,7 @@ function country_filter_initMap() {
     var self = this ;
     var RS = new RegionSelect();
     var options = Joomla.getOptions('gApi' , false);
+
 
 
     /**
@@ -244,7 +261,6 @@ function country_filter_initMap() {
 
         wgnz11.getModul("Ajax").then(function (Ajax) {
             var data = {
-
                 option : 'com_ajax' ,
                 view : null ,
                 group : 'system',
@@ -256,7 +272,6 @@ function country_filter_initMap() {
                 place_id : PlaceResult.id ,
                 formatted_address : PlaceResult.formatted_address ,
                 adr_address : PlaceResult.adr_address ,
-
             };
 
             // Вернуть весь тезультат

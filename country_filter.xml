@@ -117,10 +117,10 @@
 					<option value="0">JNO</option>
 				</field>
 
-
+<!--  ORDER BY e.title ASC -->
 				 <field name="top_city"
 				     type="sql"
-				     query="SELECT e.* FROM #__plg_system_country_filter_cities AS e  GROUP BY e.title ORDER BY e.title ASC "
+				     query="SELECT e.* FROM #__plg_system_country_filter_cities AS e  GROUP BY e.title  "
 				 			key_field="title"
 				 			value_field="title"
 				     multiple="1"

@@ -39,6 +39,10 @@
 	$inpValue .= !empty($country_title) ? $separator . $country_title : null ;
  
 	$arrCityTop = $this->params->get('top_city' , false   );
+	
+	
+	
+	
 	if( !is_array($arrCityTop)  )
 	{
 		$arrCityTop = $arrCityTop_Def ;
@@ -49,6 +53,17 @@
 	{
 		$arrCityTop = [] ;
 	}#END IF
+	
+	
+	$arrCityTop = [
+		'Москва',
+		'Санкт-Петербург',
+		'Новосибирск',
+		'Екатеринбург',
+		'Нижний Новгород',
+		'Казань',
+	];
+ 
  
  
 	$api_key = $this->params->get('google_map_api_key' , false ) ;
@@ -56,8 +71,10 @@
 	
 ?>
 
-<link id="region_select_modal-css" href="<?=JUri::root()?>/plugins/system/country_filter/asset/css/region_select_modal.json.css" rel="stylesheet" type="text/css" />
+<link id="region_select_modal-css" href="<?= \Joomla\CMS\Uri\Uri::root()?>/plugins/system/country_filter/asset/css/region_select_modal.json.css" rel="stylesheet" type="text/css" />
 <!--<script src="https://maps.googleapis.com/maps/api/js?key=--><?//= $api_key ?><!--&libraries=places&callback=country_filter_initMap" />-->
+<script src="<?= \Joomla\CMS\Uri\Uri::root()?>/plugins/system/country_filter/asset/js/country_filter.region_select.modal.js" />
+
 
 <svg style="display: none;">
     <defs id="symbols">
@@ -93,9 +110,10 @@
 	                {
 		                foreach ( $arrCityTop as $item)
 		                {
-                           ?>
+			                $alias = \GNZ11\Document\Text::str2url( $item ) ;
+			                ?>
                             <li _ngcontent-c39="" class="header-location__popular-item">
-                                <a _ngcontent-c39="" class="header-location__popular-link">
+                                <a _ngcontent-c39="" data-city_alias="<?= $alias ?>" class="header-location__popular-link">
                                     <?= $item ?>
                                 </a>
                             </li>

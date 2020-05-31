@@ -51,8 +51,14 @@
 		
 		private function startProcess( $data ){
 			
-			$columns = [ 'id', 'title' ];
+			$columns = [ 'id', 'title' , 'alias' ];
 			$table = '#__plg_system_country_filter_country';
+			foreach ( $data as $i=>$area ){
+				$area->alias = \GNZ11\Document\Text::str2url( $area->name ) ;
+				$data[$i] = $area ;
+			}
+			
+			
 			$query = $this->getQuery( $data, $table, $columns );
 			echo 'Query Dump :'.__FILE__ .' Line:'.__LINE__  .$query->dump() ;
 			$this->db->setQuery( $query );
@@ -68,12 +74,12 @@
 						continue ;
 					}#END IF
 					
-					
+					$area->alias = \GNZ11\Document\Text::str2url( $area->name ) ;
 					$regions[] = $area ; 
 					
 				}#END FOREACH
 			}
-			$columns = [ 'id', 'country_id' , 'title' ];
+			$columns = [ 'id', 'country_id' , 'title' , 'alias' ];
 			$table = '#__plg_system_country_filter_regions';
 			$query = $this->getQuery( $regions , $table, $columns );
 			echo 'Query Dump :'.__FILE__ .' Line:'.__LINE__  .$query->dump() ;
@@ -85,12 +91,11 @@
 			foreach ( $regions as $i => $obj ) {
 				foreach ( $obj->areas as $area )
 				{
-					echo'<pre>';print_r( $area );echo'</pre>'.__FILE__.' '.__LINE__.'  ((  ::'.__FUNCTION__.' - $area ))<br>';
-					
+					$area->alias = \GNZ11\Document\Text::str2url( $area->name ) ;
 					$cities[] = $area ;
 				}#END FOREACH
 			}
-			$columns = [ 'id', 'regions_id' , 'title' ];
+			$columns = [ 'id', 'regions_id' , 'title' , 'alias' ];
 			$table = '#__plg_system_country_filter_cities';
 			$query = $this->getQuery( $cities , $table, $columns );
 			echo 'Query Dump :'.__FILE__ .' Line:'.__LINE__  .$query->dump() ;
@@ -126,7 +131,7 @@
 		{
 			# TODO - Повесить на обработчик кнопки
 			// Запуск для обнавления таблиц справочника городов
-			self::loadJSon();
+//			self::loadJSon();
 			
 			\Joomla\CMS\Toolbar\ToolbarHelper::divider();
 			$bar = \Joomla\CMS\Toolbar\Toolbar::getInstance( 'toolbar' );         //ссылка на объект JToolBar
@@ -164,7 +169,13 @@
 					$values .= $this->db->quote( $obj->parent_id ). ",";
 				}#END IF
 				
-				$values .= $this->db->quote( $obj->name );
+				
+				
+				$values .= $this->db->quote( $obj->name ). ",";
+				$values .= $this->db->quote( $obj->alias );
+				
+				
+				
 				$query->values( $values );
 			}
 			$query->insert( $this->db->quoteName( $table ) )->columns( $this->db->quoteName( $columns ) );

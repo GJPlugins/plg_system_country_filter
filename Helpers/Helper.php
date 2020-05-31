@@ -102,8 +102,6 @@
 		 */
 		public function getModuleAjax(){
 			
-			
-			
 			$format = $this->app->input->get('format' , 'html' , 'WORD' );
 			$moduleName = $this->app->input->get('moduleName' , 'html' , 'STRING' );
 			$moduleName .= ($format=='html'? null :'.'.$format);
