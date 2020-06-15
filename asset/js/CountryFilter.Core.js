@@ -92,7 +92,7 @@ window.CountryFilterCore = function ( InitNew ) {
     }
 
     this.Init = function () {
-        this.load.js('/plugins/system/country_filter/asset/js/CountryFilter.RegionSelect.js')
+        this.load.js( siteUrl + 'plugins/system/country_filter/asset/js/CountryFilter.RegionSelect.js')
     };
     /**
      * найти город по названию
