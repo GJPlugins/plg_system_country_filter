@@ -8,6 +8,8 @@
 	
 	class plgSystemCountry_filter extends JPlugin
 	{
+		
+		
 		/**
 		 * Affects constructor behavior. If true, language files will be loaded automatically.
 		 *
@@ -21,9 +23,19 @@
 		/**
 		 * extension_id this plugin
 		 * @var integer
+		 * @since 3.9
 		 */
 		protected $_extension_id ;
-		
+		/**
+		 * @var array массив с пунктами меню на главную
+		 * @since 3.9
+		 */
+		protected $homes ;
+		/**
+		 * @var array массив id пунктов меню для главной странницы
+		 * @since 3.9
+		 */
+		protected $homesIdsArr ;
 		/**
 		 * The routing mode.
 		 *
@@ -47,7 +59,9 @@
 		 * @since  2.5
 		 */
 		protected $default_region = 'austria' ;
-		
+
+		protected $Helper ;
+		public $params ;
 		public $countries = array('austria', 'belgium', 'czech-republic', 'poland', 'slovakia', 'ukraine');
 		public $country;
 		public $LHelper;
@@ -61,7 +75,17 @@
 			
 			JLoader::registerNamespace('GNZ11',JPATH_LIBRARIES.'/GNZ11',$reset=false,$prepend=false,$type='psr4');
 			JLoader::registerNamespace('CountryFilter',JPATH_PLUGINS.'/system/country_filter',$reset=false,$prepend=false,$type='psr4');
-			
+			try
+			{
+				$this->Helper = \CountryFilter\Helpers\Helper::instance( $this->params );
+			} catch( Exception $e )
+			{
+				echo '<pre>';
+				print_r( $e );
+				echo '</pre>' . __FILE__ . ' ' . __LINE__;
+				die( __FILE__ . ' ' . __LINE__ );
+			}
+
 			if( !$this->app->isClient( 'site' ) )
 				return; #END IF
 			
@@ -73,9 +97,7 @@
 			
 			$this->mode_sef     = $this->app->get('sef', 0);
 			
-			
-			
-//			$this->LHelper = CountryFilter\Helpers\Languagefilter::instance();
+
 			
 			if( $this->params->get('debug' , false  ) )
 			{
@@ -93,10 +115,11 @@
 		{
 			if( !$this->app->isClient( 'site' ) )
 				return false; #END IF
-			
+
 			$helper = \CountryFilter\Helpers\Helper::instance( $this->params );
+			$helper->setJsData();
 			# Получить список всех псевдонимов городов
-			$this->countries = $helper->getAllMapSef();
+			// $this->countries = $helper->getAllMapSef();
 			$helper->getCityData();
 			 
 			
@@ -125,37 +148,108 @@
 		 * @param $uri
 		 *
 		 * @return array
+		 * @since 3.9
 		 */
 		public function preprocessParseRule ( &$router, &$uri )
 		{
-			
+			# префикс города найден или используется город по умолчанию
+			$found = false;
+
+			# Получаем город по усолчанию из настроек
+			$this->default_region = $this->params->get( 'default_city' , 'moskva' );
+
 			# Мы в режиме SEF или нет?
 			if( $this->mode_sef )
 			{
+
 				# Получили SEF путь e.t : austria/en
 				$path = $uri->getPath();
 				$parts = explode( '/', $path );
-				
-				# Если первым параметром в запросе является название региона
-				# из массива $this->countries
+
+
+//				echo'<pre>';print_r( $parts );echo'</pre>'.__FILE__.' '.__LINE__;
+//				die(__FILE__ .' '. __LINE__ );
+
+				# Проверяем Если первым параметром в запросе является название региона
+				# из из справчника
 				# иначе берем по умолчанию
-				if( !empty( $parts[ 0 ] ) && in_array( $parts[ 0 ], $this->countries ) )
+				if( !empty( $parts[ 0 ] )   )
 				{
-					$region = array_shift($parts);
-					$uri->setPath(implode('/', $parts) ) ;
-				} else
-				{
-					$region = $this->default_region;
+					$this->countries = \CountryFilter\Helpers\CitiesDirectory::getLocationByCityName( $parts[ 0 ] );
+					# Если город найден убераем город из пути
+					# Сохраняем путь в роутер
+					if( is_array($this->countries) && in_array( $parts[ 0 ] , $this->countries ) )
+					{
+						# Вытаскиваем префикс города из пути и запоминаем
+						$this->country = array_shift( $parts );
+						$uri->setPath( implode( '/' , $parts ) );
+
+						# Сохряняем в Cookie
+//						$this->Helper->setCityCookie($this->country);
+
+
+
+						# Пытаемся найти в куках
+						$cookieData = $this->Helper->getCityCookie();
+//						echo'<pre>';print_r( $cookieData );echo'</pre>'.__FILE__.' '.__LINE__;
+//						echo'<pre>';print_r( $this->country );echo'</pre>'.__FILE__.' '.__LINE__;
+
+					} else
+					{
+						# Пытаемся найти в куках
+						$cookieData = $this->Helper->getCityCookie();
+
+						# если в куках нет данных берем город по умолчанию
+						if( !$cookieData )
+						{
+							$this->country = $this->default_region;
+
+						} else
+						{
+							$this->country = $cookieData ;
+
+						}#END IF
+					}#END IF
 				}
-				
-				$this->country = $region ;
-				
-				
+				else # Если в урл только домен и нет параметров города
+				{
+					$cookieData = $this->Helper->getCityCookie();
+					if( $cookieData )
+					{
+						$this->country = $cookieData ;
+					}else{
+						$this->country = $this->default_region;
+					}#END IF
+
+
+
+				}
+
+				if( $this->mode_sef )
+				{
+
+					if( $this->country == $this->default_region )
+					{
+
+					}#END IF
+					// Create a cookie.
+//					$this->setLanguageCookie($lang_code);
+
+				}
+
+
+
+				# Передаем город в глобальные параметры для долнейшей работы с ним
 				# todo - доставать проверку из кук
 				if( !empty( $this->country ) )
 				{
 					$this->app->input->set( 'sitecountry', $this->country );
 					$array = array( 'sitecountry' => $this->country );
+				}
+				// Create a cookie.
+				if ($this->Helper->getCityCookie() !== $this->country)
+				{
+					$this->Helper->setCityCookie($this->country);
 				}
 				return $array;
 			}

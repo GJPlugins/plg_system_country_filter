@@ -97,10 +97,7 @@
 			
 			
 		}
-		public function getCityData($mapId){
-			$query = $this->db->getQuery( true );
-			
-		}
+		
 		/**
 		 * Получить данные из  таблиц ( city, region, country )
 		 * @param $type string - тип справочника ( city, region, country )

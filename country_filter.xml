@@ -22,7 +22,33 @@
     </files>
     <config>
         <fields name="params">
+			<fieldset  addfieldpath="/plugins/system/country_filter/fields" />
             <fieldset name="basic">
+				
+				<field name="default_city"
+					type="listcity"
+					default=""
+					required=""
+					label="COUNTRY_FILTER_DEFAULT_CITY"
+					description="COUNTRY_FILTER_DEFAULT_CITY_DESC"
+					class="default_city "
+					multiple="false"
+					readonly=""
+					showon=""
+					filter="raw" />
+				<field name="remove_default_city"
+					type="radio"
+					default="1"
+					label="COUNTRY_FILTER_REMOVE_DEFAULT_CITY"
+					description="COUNTRY_FILTER_REMOVE_DEFAULT_CITY_DESC"
+					class="btn-group btn-group-yesno">
+					<option value="1">JYES</option>
+					<option value="0">JNO</option>
+				</field>
+
+
+					
+				
 				<field name="debug"
 					type="radio"
 					default="0"
@@ -47,7 +73,8 @@
 				</field>
             </fieldset>
             <fieldset name="module">
-                <field name="module_position"
+
+				<field name="module_position"
                 	type="moduleposition"
                 	default="region-select"
                 	class="module_position "
@@ -55,6 +82,8 @@
                 	description="COUNTRY_FILTER_MODULE_POSITION_DESC"
                 	showon=""
                 	filter="raw" />
+
+
                 <field name="default_str"
                 	type="text"
                 	default="Выберите город"
@@ -88,25 +117,6 @@
                 	showon=""
                 	filter="raw" />
 
-                <!--<field name="top_city"
-                	type="list"
-                	default=""
-                	required=""
-                	label="COUNTRY_FILTER_TOP_CITY"
-                	description="COUNTRY_FILTER_TOP_CITY_DESC"
-                	class="top_city "
-                	multiple="true"
-                	readonly=""
-                	showon=""
-                	filter="raw" >
-&lt;!&ndash;                		<option value="">Please Select</option>&ndash;&gt;
-                		<option  value="1">Москва</option>
-                		<option value="2">Санкт-Петербург</option>
-                		<option value="3">Новосибирск</option>
-                		<option value="4">Екатеринбург</option>
-                		<option value="5">Нижний Новгород</option>
-                		<option value="6">Казань</option>
-                	</field>-->
 				<field name="on_top_city"
 					type="radio"
 					default="1"
@@ -117,19 +127,44 @@
 					<option value="0">JNO</option>
 				</field>
 
-<!--  ORDER BY e.title ASC -->
-				 <field name="top_city"
-				     type="sql"
-				     query="SELECT e.* FROM #__plg_system_country_filter_cities AS e  GROUP BY e.title  "
-				 			key_field="title"
-				 			value_field="title"
-				     multiple="1"
-				     translate="false"
-				     header=""
-				     label="COUNTRY_FILTER_TOP_CITY"
-				     description="COUNTRY_FILTER_TOP_CITY_DESC"
-				     class="top_city "
-				     showon="on_top_city:1" />
+				<field
+					name="top_city"
+					type="subform"
+					label="COUNTRY_FILTER_TOP_CITY"
+					description="COUNTRY_FILTER_TOP_CITY_DESC"
+					required=""
+					message=""
+					default=""
+					multiple="true"
+					min="1"
+					max="6"
+					groupByFieldset="false"
+					buttons="add,remove,move"
+					showon="on_top_city:1"
+					>
+					<form>
+
+						<field name="citiesAlias"
+							type="listcity"
+							default=""
+							required=""
+							label="COUNTRY_FILTER_CITY"
+							description=""
+							class="citiesAlias "
+							multiple="false"
+							readonly=""
+							showon=""
+							   filter="raw" />
+						<field name="cities"
+							type="hidden"
+							default=""
+							class="cities "
+							required=""
+							   filter="raw" />
+					</form>
+				</field>
+
+
 			</fieldset>
 			<fieldset name="api">
 				<field name="google_map_api_key"

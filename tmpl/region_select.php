@@ -14,13 +14,15 @@
 	
 	/**
 	 * Отложенная загрузка скрипта управления
+     * CountryFilter.Core.js
 	 */
 	$Jpro = $doc->getScriptOptions('Jpro') ;
     $Jpro['load'][] = [
-		'u' => JUri::base() . 'plugins/system/country_filter/asset/js/country_filter.region_select.drive.js' , // Путь к файлу
+		'u' => \Joomla\CMS\Uri\Uri::base(true) . '/plugins/system/country_filter/asset/js/CountryFilter.Core.js' , // Путь к файлу
 		't' => 'js' ,                                       // Тип загружаемого ресурса
 		'c' => '' ,                             // метод после завершения загрузки
 	];
+	
 	$doc->addScriptOptions('Jpro' , $Jpro , true ) ;
 	$Jpro = $doc->getScriptOptions('Jpro') ;
 	

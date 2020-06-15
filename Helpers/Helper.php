@@ -38,7 +38,7 @@
 		 * @var array
 		 * @since version
 		 */
-		public $mapCityData;
+		public $CityData;
 		/**
 		 *
 		 * @package     CountryFilter\Helpers
@@ -63,8 +63,8 @@
 		 */
 		private function __construct ( $options = array() )
 		{
-			$this->app = \JFactory::getApplication();
-			$this->db = \JFactory::getDbo();
+			$this->app = \Joomla\CMS\Factory::getApplication();
+			$this->db = \Joomla\CMS\Factory::getDbo();
 			
 			
 			$this->params = $options ;
@@ -95,6 +95,17 @@
 		}#END FN
 		
 		/**
+		 * передать на фронт JS настройки плагина
+		 * @since 3.9
+		 */
+		public function setJsData (){
+			$pluginName = 'country_filter' ;
+			$JsData['siteUrl'] = \Joomla\CMS\Uri\Uri::root();
+			$JsData['default_city'] = $this->params->get('default_city');
+			\GNZ11\Document\Options::addPluginOptions(  $pluginName , $JsData );
+		}
+		
+		/**
 		 * Загрузка контента для модального окна
 		 * @return object[]
 		 *
@@ -106,27 +117,21 @@
 			$moduleName = $this->app->input->get('moduleName' , 'html' , 'STRING' );
 			$moduleName .= ($format=='html'? null :'.'.$format);
 			
+			$this->getCityData();
 			
 			try
 			{
-				// Code that may throw an Exception or Error.
 				$content = $this->getModul( $moduleName );
-			} catch (Exception $e)
+			} catch (\Exception $e)
 			{
 				// Executed only in PHP 5, will not be reached in PHP 7
 				echo 'Выброшено исключение: ', $e->getMessage(), "\n";
 				echo'<pre>';print_r( $e );echo'</pre>'.__FILE__.' '.__LINE__;
 				die(__FILE__ .' '. __LINE__ );
 			}  
-			
-			
-			
-			
 			$content->api = [];
 			$content->api['api_key'] =  $this->params->get('google_map_api_key' , false );
 			
-//			echo'<pre>';print_r( $this->params->get('country_autocomplete' , false ) );echo'</pre>'.__FILE__.' '.__LINE__;
-//			die(__FILE__ .' '. __LINE__ );
 			/**
 			 * https://developers.google.com/maps/documentation/javascript/reference/places-autocomplete-service#ComponentRestrictions
 			 * https://en.wikipedia.org/wiki/List_of_ISO_3166_country_codes
@@ -137,106 +142,128 @@
 			}#END IF
 			return ['module' => $content ];
 		}
-		
-		
-		
+	
+		/**
+		 * Получить данные из справочника городов по записанной Cookie
+		 * @return array
+		 * @since 3.9
+		 */
 		public function getCityData(){
-			
-			$this->mapCityData = new \Joomla\Registry\Registry() ;
-			
-			$cookieId = \JApplicationHelper::getHash('city') ;
-			$cityCode = $this->app->input->cookie->get( $cookieId );
-			
-			
-			# Если id_map не существует в куках - ищем по Ip
-			if( !$cityCode )
+			$cookieData = $this->getCityCookie();
+			$this->CityData = \CountryFilter\Helpers\CitiesDirectory::getLocationByCityName( $cookieData    );
+
+			#  TODO длдя отладки Ajax
+			/*$option = $this->app->input->get('option') ;
+			if( $option )
 			{
-				$this->Client = new \CountryFilter\Helpers\Client();
-				$r =  $this->Client->checkIpAddress() ;
-				
-				if( empty( $r ) )
-				{
-					return [] ;
-				}#END IF
-				$cityCode = $r->id_map ;
+				echo'<pre>';print_r( $this->CityData );echo'</pre>'.__FILE__.' '.__LINE__;
+				echo'<pre>';print_r( $cookieData );echo'</pre>'.__FILE__.' '.__LINE__;
+				echo'<pre>';print_r( $option );echo'</pre>'.__FILE__.' '.__LINE__;
+				die(__FILE__ .' '. __LINE__ );
+			}#END IF*/
+
+
+
+			return $this->CityData ;
+		}
+		
+		/**
+		 * Найти информауию о геолакации из справочников по названию города
+		 * используется когда пользователь выбирает город в модальном окне !
+		 * -----   Ajax   -----
+		 * @since 3.9
+		 */
+		public  function getLocationByCityName(){
+			
+			$city = $this->app->input->get( 'city' , false  , 'STRING' );
+			$alias = $this->app->input->get( 'alias' , false  , 'STRING' );
+			$window_location_href = $this->app->input->get( 'window_location_href' , false  , 'RAW' );
+			
+			$resArr = \CountryFilter\Helpers\CitiesDirectory::getLocationByCityName( $city );
+
+			# город не найден
+			if( !$resArr )
+			{
+				echo new \Joomla\CMS\Response\JsonResponse( false , \Joomla\CMS\Language\Text::_('COUNTRY_FILTER_CITY_NOT_FOUND') , true  ) ;
+				$this->app->close();
 			}#END IF
 			
-			$tableMAP = \CountryFilter\Helpers\Services::MAP_TABLE ;
-			$tableCOUNTRY = \CountryFilter\Helpers\Services::COUNTRY_TABLE ;
-			$tableREGIONS = \CountryFilter\Helpers\Services::REGIONS_TABLE ;
-			$tableCITIES = \CountryFilter\Helpers\Services::CITIES_TABLE ;
+			# Текущий город
+			$cityData = $this->getCityData();
 			
+			/**
+			 * Собираем Uri с учетом региона
+			 */
+			$uri = \Joomla\CMS\Uri\Uri::getInstance( $window_location_href );
+			$path = $uri->getPath();
+
+
+
+
+			$parts = array_filter(array_map( 'trim' , explode( '/' , $path ) ));
+
+
+
 			
-			$query = $this->db->getQuery( true );
-			$select = [
-				$this->db->quoteName( 'map'  ).'.'.$this->db->quoteName( 'id',   'map_id' ),
-				$this->db->quoteName( 'map'  ).'.'.$this->db->quoteName( 'country_id' , 'map_country_id'  ),
-				$this->db->quoteName( 'map'  ).'.'.$this->db->quoteName( 'region_id' , 'map_region_id'  ),
-				$this->db->quoteName( 'map'  ).'.'.$this->db->quoteName( 'city_id' , 'map_city_id'  ),
-				$this->db->quoteName( 'map'  ).'.'.$this->db->quoteName( 'sef' , 'map_sef'  ),
-				$this->db->quoteName( 'map'  ).'.'.$this->db->quoteName( 'params' , 'map_params'  ),
-				$this->db->quoteName( 'map'  ).'.'.$this->db->quoteName( 'published' , 'map_published'  ),
-				$this->db->quoteName( 'map'  ).'.'.$this->db->quoteName( 'ordering' , 'map_ordering'  ),
-				
-				
-				$this->db->quoteName( 'country'  ).'.'.$this->db->quoteName( 'id',          'country_id'  ),
-				$this->db->quoteName( 'country'  ).'.'.$this->db->quoteName( 'title',       'country_title'  ),
-//				$this->db->quoteName( 'country'  ).'.'.$this->db->quoteName( 'short_title', 'country_short_title'  ),
-				
-				$this->db->quoteName( 'regions'  ).'.'.$this->db->quoteName( 'id' ,         'region_id'  ),
-				$this->db->quoteName( 'regions'  ).'.'.$this->db->quoteName( 'title' ,      'region_title'  ),
-//				$this->db->quoteName( 'regions'  ).'.'.$this->db->quoteName( 'short_title' ,'region_short_title'  ),
-				
-				$this->db->quoteName( 'cities'  ).'.'.$this->db->quoteName( 'id' ,          'city_id'   ),
-				$this->db->quoteName( 'cities'  ).'.'.$this->db->quoteName( 'title' ,       'city_title'   ),
-//				$this->db->quoteName( 'cities'  ).'.'.$this->db->quoteName( 'short_title' , 'city_short_title'   ),
-			];
-			$where = [
-				$this->db->quoteName( 'map'  ).'.'.$this->db->quoteName( 'id' ).'='.$this->db->quote( $cityCode ) ,
-			];
-			$query->join('LEFT', $this->db->quoteName( $tableCOUNTRY, 'country') . ' ON country.id = map.country_id');
-			$query->join('LEFT', $this->db->quoteName( $tableREGIONS, 'regions') . ' ON regions.id = map.region_id');
-			$query->join('LEFT', $this->db->quoteName( $tableCITIES, 'cities') . ' ON cities.id = map.city_id');
-			
-			
-			$query->select( $select );
-			$as = 'map' ;
-			$query->from( $this->db->quoteName( $tableMAP , $as  )  );
-			$query->where( $where );
-			
-			echo 'Query Dump :'.__FILE__ .' Line:'.__LINE__  .$query->dump() ;
-			
-			$this->db->setQuery( $query );
-			$mapCityData = $this->db->loadAssoc() ;
-			$tArr = [   'map' , 'country' , 'region' , 'city'  ];
-			$resData = [] ;
-			$resData['Cookie'] = $cookieId ;
-			foreach ( $tArr as  $t)
+			if( $parts[1] == $cityData['citiesAlias'] )
 			{
-				switch ($t) {
-					case 'map' :
-						$resData['map']['id'] = $mapCityData['map_id'];
-						$resData['map']['map_id'] = $mapCityData['map_id'];
-						$resData['map']['country_id'] = $mapCityData['map_country_id'];
-						$resData['map']['region_id'] = $mapCityData['map_region_id'];
-						$resData['map']['city_id'] = $mapCityData['map_city_id'];
-						$resData['map']['sef'] = $mapCityData['map_sef'];
-						$resData['map']['params'] = $mapCityData['map_params'];
-						$resData['map']['published'] = $mapCityData['map_published'];
-						$resData['map']['ordering'] = $mapCityData['map_ordering'];
-						break ;
-					default :
-						$resData[$t]['id'] = $mapCityData[$t.'_id'];
-						$resData[$t]['title'] = $mapCityData[$t.'_title'];
-						$resData[$t]['short_title'] = $mapCityData[$t.'_short_title'];
-				}
+				unset($parts[1]) ;
+
+			}else{
+
+			}#END IF
+
+//			echo'<pre>';print_r( $cityData );echo'</pre>'.__FILE__.' '.__LINE__;
+//			echo'<pre>';print_r( $parts );echo'</pre>'.__FILE__.' '.__LINE__;
+
+			$path = implode('/', $parts);
+
+
+			if( $resArr['citiesAlias'] != $cityData['citiesAlias'] )
+			{
+
+//
+			}else{
+//
+			}#END IF
+
+
+
+
+			$uri->setPath($path);
+
+			if (!$this->app->get('sef_rewrite'))
+			{
+				$uri->setPath('index.php/' . $uri->getPath());
+			}
+
+
+			if( $resArr['citiesAlias'] == $this->params->get('default_city') )
+			{
+				$uri->setPath(  implode('/', $parts)    );
+				$this->setCityCookie(null);
+			}else{
+				# Закидываем   префикс города в начало пути
+				$path = $resArr['citiesAlias'] . '/' . $path;
+				$uri->setPath(  $path   );
+				$this->setCityCookie($resArr['citiesAlias'] );
+			}#END IF
+
+			$redirectUri = $uri->base() . $uri->toString(array('path', 'query', 'fragment'));
+
+
+
+
 			
-			}#END FOREACH
+
+			# Собираем урл для перенапровления
+			$resArr['rLink']  = $redirectUri ;
+			$resArr['rLinkRoot']   = \Joomla\CMS\Uri\Uri::root() . $resArr['citiesAlias'] ;
 			
-			$this->mapCityData->loadArray( $resData )   ;
-			
-			 return true ;
+			echo new \Joomla\CMS\Response\JsonResponse( $resArr , \Joomla\CMS\Language\Text::_('COUNTRY_FILTER_CITY_FOUND') , false  ) ;
+			$this->app->close();
 		}
+		
 		
 		/**
 		 * Загрузчик модулей
@@ -297,22 +324,21 @@
 		 */
 		private function loadTemplate ( $layout = 'default' )
 		{
-			$path = \JPluginHelper::getLayoutPath( 'system', 'country_filter', $layout );
 			
-			
+			$path = \Joomla\CMS\Plugin\PluginHelper::getLayoutPath( 'system', 'country_filter', $layout );
 			// Render the layout
 			ob_start();
 			include $path;
 			return ob_get_clean();
 		}
 		
-		public function Ajax_getCityClient(){
-			$this->getCityData() ;
-			
-			return $this->mapCityData ;
-		}
 		
+		/**
+		 * @return array|mixed
+		 * @deprecated
+		 */
 		public function Ajax_setCityPrefix(){
+			die('<b>DIE : '.__FILE__.' '.__LINE__.'  => '.__CLASS__.'::'.__FUNCTION__.'</b>' );
 			$service = $this->app->input->get('service' , false , 'STRING'  ) ;
    
 			switch ( $service ){
@@ -328,81 +354,75 @@
 			
 		}
 		
-		/**
-		 * Получить все сокращения для регионов
-		 *
-		 * @since version
-		 */
-		public function getAllMapSef(){
-			$tableMAP = \CountryFilter\Helpers\Services::MAP_TABLE ;
-			$query = $this->db->getQuery( true );
-			$select = [
-				$this->db->quoteName( 'map'  ).'.'.$this->db->quoteName( 'sef' , 'map_sef'  ),
-			];
-			
-			$query->select($select) ;
-			$query->from( $this->db->quoteName( $tableMAP , 'map'   )  );
-			$query->where( $this->db->quoteName('sef') .'<>' .$this->db->quote('') ) ;
-			$this->db->setQuery( $query );
-			
-			$res = $this->db->loadColumn();
-			
-			
-			return $res ;
-			
-		}
-		
-		/**
-		 * Set the city cookie
-		 *
-		 * @param   string  $languageCode  The language code for which we want to set the cookie
-		 *
-		 * @return  void
-		 *
-		 * @since   3.4.2
-		 */
-		private function setCityCookie( $cityData  , $stege = 0 )
+		public function setCityCookie($cityAlias)
 		{
-			# Если в параметрах плагина установлено использование языка cookie в течение года,
-			# сохраните язык пользователя в новом файле cookie.
+			// If is set to use language cookie for a year in plugin params, save the user language in a new cookie.
 			if ((int) $this->params->get('city_cookie', 0) === 1)
 			{
-				$cookieName = \JApplicationHelper::getHash('city') ;
-				$cookie_path = $this->app->get('cookie_path', '/') ;
-				$cookie_domain = $this->app->get('cookie_domain', '') ;
-				
-				$this->app->input->cookie->set($cookieName, '', 1 , $cookie_path , $cookie_domain );
-				
-				# Создайте cookie с продолжительностью одного года.
+				// Create a cookie with one year lifetime.
 				$this->app->input->cookie->set(
-					$cookieName ,
-					$cityData['map']['id'] ,
+					JApplicationHelper::getHash('cityAlias'),
+					$cityAlias,
 					time() + 365 * 86400,
-					$cookie_path ,
-					$cookie_domain ,
+					$this->app->get('cookie_path', '/'),
+					$this->app->get('cookie_domain', ''),
 					$this->app->isHttpsForced(),
 					true
 				);
 			}
-			# Если нет, установите язык пользователя в сеансе (который уже сохранен в файле cookie).
-			// If not, set the user language in the session (that is already saved in a cookie).
+			// If not, set the user language in the session
+			// (that is already saved in a cookie).
 			else
 			{
-				JFactory::getSession()->set('plg_system_country_filter.city', $cityData['map']['id'] );
+				\Joomla\CMS\Factory::getSession()->set('plg_system_country_filter.cityAlias', $cityAlias);
 			}
-			$cityCode = $this->app->input->cookie->get(\JApplicationHelper::getHash('city'));
-			
-			if( !$cityCode )
-			{
-				
-//				echo'<pre>';print_r( $cityData );echo'</pre>'.__FILE__.' '.__LINE__;
-//				echo'<pre>';print_r( $cityCode );echo'</pre>'.__FILE__.' '.__LINE__;
-//				die(__FILE__ .' '. __LINE__ );
-			}#END IF
-			
-			return $cityCode ;
-			
 		}
+		/**
+		 * Get the City cookie
+		 *
+		 * @return  string
+		 *
+		 * @since   3.4.2
+		 */
+		public function getCityCookie()
+		{
+
+
+			// если настроен на использование куки-файла годового языка в параметрах плагина,,
+			// получить язык пользователя из куки.
+			if ((int) $this->params->get('city_cookie', 0) === 1)
+			{
+
+				$cityAlias = $this->app->input->cookie->get(\Joomla\CMS\Application\ApplicationHelper::getHash('cityAlias'));
+			}
+			# В противном случае получить город из сессии.
+			else
+			{
+				$cityAlias = \Joomla\CMS\Factory::getSession()->get('plg_system_country_filter.cityAlias');
+			}
+
+			if( $cityAlias )
+			{
+//				echo'<pre>';print_r( $cityAlias );echo'</pre>'.__FILE__.' '.__LINE__;
+//				echo'<pre>';print_r( $this->params->get('city_cookie', 0) );echo'</pre>'.__FILE__.' '.__LINE__;
+			}#END IF
+
+
+			$cityInfoArr = \CountryFilter\Helpers\CitiesDirectory::getLocationByCityName( $cityAlias , true  );
+			// Let's be sure we got a valid language code. Fallback to null.
+			if (!$cityInfoArr)
+			{
+				$cityAlias = null;
+			}
+			return $cityAlias;
+		}
+		
+		
+		
+		
+		
+		
+		
 		
 		
 	}

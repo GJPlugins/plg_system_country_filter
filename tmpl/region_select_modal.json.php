@@ -7,7 +7,9 @@
 	 * @license     A "Slug" license name e.g. GPL2
 	 */
 	
-	$doc = JFactory::getDocument();
+	use CountryFilter\Helpers\CitiesDirectory;
+	use Joomla\CMS\Factory;
+	
 	
 	$arrCityTop_Def = [
 		'Москва',
@@ -17,63 +19,50 @@
 		'Нижний Новгород',
 		'Казань',
 	];
+	$separator = ', ';
+	$api_key = $this->params->get( 'google_map_api_key', false );
+	$doc = Factory::getDocument();
+	/**
+	 * Случайный город
+	 */
+	$RansomCity = CitiesDirectory::getRansomCity();
+	
+	CitiesDirectory::getLocationByCityName($arrCityTop_Def);
+	
+	$cities_title = ( isset( $this->CityData['cities'] ) ? $this->CityData['cities'] : null );
+	$regions_title = ( isset( $this->CityData['regions'] ) ? $this->CityData['regions'] : null );
+	$country_title = ( isset( $this->CityData['country'] ) ? $this->CityData['country'] : null );
+	
+	if( $cities_title == $regions_title )
+		$regions_title = null; #END IF
+	
+    $inpValue = !empty( $cities_title ) ? $cities_title : null;
+	$inpValue .= !empty( $regions_title ) ? $separator . $regions_title : null;
+	$inpValue .= !empty( $country_title ) ? $separator . $country_title : null;
 	
 	
 	
-	$this->getCityData() ;
-	$separator = ', ' ;
-	$map =  $this->mapCityData->get('map' , null )  ;
-	
-	$city =  $this->mapCityData->get('city' , null )  ;
-	$cities_title =  (isset( $city->title ) ? $city->title : null ) ;
-	
-	$regions =  $this->mapCityData->get('region' , null )  ;
-	$regions_title =  (isset( $regions->title ) ? $regions->title : null ) ;
-	
-	$country =  $this->mapCityData->get('country' , null ) ;
-	$country_title =  (isset( $country->title ) ? $country->title : null ) ;
-	
-	if( $cities_title == $regions_title ) $regions_title = null ; #END IF
-	$inpValue = !empty($cities_title) ? $cities_title : null ;
-	$inpValue .= !empty($regions_title) ? $separator . $regions_title : null ;
-	$inpValue .= !empty($country_title) ? $separator . $country_title : null ;
- 
-	$arrCityTop = $this->params->get('top_city' , false   );
 	
 	
 	
 	
-	if( !is_array($arrCityTop)  )
-	{
-		$arrCityTop = $arrCityTop_Def ;
-	}#END IF
-	
-    # Если TOP подсказки отключены
-	if( !$this->params->get('on_top_city' , true   ) )
-	{
-		$arrCityTop = [] ;
-	}#END IF
 	
 	
-	$arrCityTop = [
-		'Москва',
-		'Санкт-Петербург',
-		'Новосибирск',
-		'Екатеринбург',
-		'Нижний Новгород',
-		'Казань',
-	];
- 
- 
- 
-	$api_key = $this->params->get('google_map_api_key' , false ) ;
 	
 	
+	
+	
+	
+	
+
+
 ?>
 
-<link id="region_select_modal-css" href="<?= \Joomla\CMS\Uri\Uri::root()?>/plugins/system/country_filter/asset/css/region_select_modal.json.css" rel="stylesheet" type="text/css" />
-<!--<script src="https://maps.googleapis.com/maps/api/js?key=--><?//= $api_key ?><!--&libraries=places&callback=country_filter_initMap" />-->
-<script src="<?= \Joomla\CMS\Uri\Uri::root()?>/plugins/system/country_filter/asset/js/country_filter.region_select.modal.js" />
+<link id="region_select_modal-css"
+      href="<?= \Joomla\CMS\Uri\Uri::root() ?>/plugins/system/country_filter/asset/css/region_select_modal.json.css"
+      rel="stylesheet" type="text/css"/>
+<!--<script src="https://maps.googleapis.com/maps/api/js?key=--><? //= $api_key ?><!--&libraries=places&callback=country_filter_initMap" />-->
+<script src="<?= \Joomla\CMS\Uri\Uri::root() ?>/plugins/system/country_filter/asset/js/country_filter.region_select.modal.js"/>
 
 
 <svg style="display: none;">
@@ -101,35 +90,39 @@
                     <use _ngcontent-c39="" xlink:href="#icon-delivery-self"
                          xmlns:xlink="http://www.w3.org/1999/xlink"></use>
                 </svg>
-                <?= $this->params->get('intro_txt' , JText::_('Доставляем заказы по всей России!'))?>
+				<?= $this->params->get( 'intro_txt', JText::_( 'Доставляем заказы по всей России!' ) ) ?>
             </p>
-            
+
             <ul _ngcontent-c39="" class="header-location__popular">
-                <?php
-	                if( count( $arrCityTop ) )
-	                {
-		                foreach ( $arrCityTop as $item)
-		                {
-			                $alias = \GNZ11\Document\Text::str2url( $item ) ;
-			                ?>
+				<?php
+					# Если TOP подсказки включены
+					if( $this->params->get( 'on_top_city', true ) )
+					{
+						$arrCityTop = $this->params->get( 'top_city', false );
+                        foreach ($arrCityTop as $item)
+                        {
+	                        ?>
                             <li _ngcontent-c39="" class="header-location__popular-item">
-                                <a _ngcontent-c39="" data-city_alias="<?= $alias ?>" class="header-location__popular-link">
-                                    <?= $item ?>
+                                <a _ngcontent-c39="" data-city_alias="<?= $item->citiesAlias ?>"
+                                   class="header-location__popular-link">
+			                        <?= $item->cities ?>
                                 </a>
                             </li>
-                            <?php
-		                }#END FOREACH
-	                }#END IF
-                ?>
+	                        <?php
+                        }
+					}#END IF
+     
+     
+				?>
             </ul>
-            
+
             <form _ngcontent-c39="" action="" class="header-location__search ng-untouched ng-pristine ng-valid"
                   novalidate="">
-                
+
                 <label _ngcontent-c39="" class="header-location__search-label" for="cityinput">
-                    <?= $this->params->get( 'before_input_text', JText::_( 'Введите населенный пункт России' ) ) ?>
+					<?= $this->params->get( 'before_input_text', JText::_( 'Введите населенный пункт России' ) ) ?>
                 </label>
-                
+
                 <auto-complete _ngcontent-c39="" class="header-location__search-input" id="cityinput" _nghost-c40="">
                     <input _ngcontent-c40=""
                            id="pac-input"
@@ -141,9 +134,26 @@
                            placeholder="Выберите свой город">
                     <ul _ngcontent-c40="" class="header-location__autocomplete-list dialog"><!----><!----><!---->
                         <!----></ul><!---->
-                </auto-complete><!----><p _ngcontent-c39=""
-                                                                     class="header-location__search-example"> Например,
-                    <a _ngcontent-c39="" class="link-dotted"> Котюжины </a></p></form>
+                </auto-complete><!---->
+
+                <p _ngcontent-c39="" class="header-location__search-example"> Например,
+                    <a _ngcontent-c39="" class="link-dotted"  data-city_alias="<?= $RansomCity[0]['citiesAlias'] ?>">
+                        <?= $RansomCity[0]['cities'] ?>
+                    </a>
+                </p>
+                <input name="city_id" type="hidden" value="" >
+            </form>
+
+            <fieldset _ngcontent-c77="">
+                <div _ngcontent-c77="" class="header-location__footer">
+                    <a _ngcontent-c77="" apprzroute="" class="button button_size_medium button_color_gray"
+                       href="<?= \Joomla\CMS\Uri\Uri::root(true) ?>">
+                        Перейти на главную страницу </a>
+                    <button _ngcontent-c77="" class="button button_size_medium button_color_green"> Применить</button>
+                </div>
+            </fieldset>
+
+
             <p _ngcontent-c39="" class="header-location__caption">Выбор города поможет предоставить актуальную
                 информацию о наличии товара, его цены и способов доставки в вашем городе! Это поможет сохранить больше
                 свободного времени для вас!</p></common-city>

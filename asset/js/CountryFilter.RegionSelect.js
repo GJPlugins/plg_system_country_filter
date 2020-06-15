@@ -1,114 +1,69 @@
 /**
- *
+ * Управление выбором Города
+ * @param InitNew
  * @constructor
  */
-
-
-
-window.RegionSelect = function ( InitNew ) {
+window.CountryFilterRegionSelect = function ( InitNew ) {
     var $ = jQuery ;
     var self = this ;
-    this.__v = '0.0.3';
-    this.__group = 'system' ;
-    this.__plugin = 'country_filter' ;
 
-this.selectos = {
-        cityTop : 'a.header-location__popular-link , p.header-location__search-example a' ,
-            inputCityAutocomplete : '#pac-input' ,
-    };
-
-    this.AjaxDefaultData = {
-        group : this.__group,
-        plugin : this.__plugin ,
-        option : 'com_ajax' ,
-        format : 'json' ,
-        task : null ,
-    }
-
-    this.selector = '.js-rz-city a' ;
-
-
-
-
+    this.Redirect_link ;
     this.Init = function () {
-
-        var $a = $(this.selector) ;
+        var $a = $(this.selectos.aCity) ;
         $a.on('click' , self.loadModalRegionSelect );
-
         this.getCityClient() ;
-        console.log( this )
-        // self.addEventClck();
     };
-
-
-
-
     /**
-     * Установить Название города в модуле
-     * @param d obj
-     *
+     * Операции над модулем
+     * @type {{ChangeCity: Window.CountryFilterRegionSelect.ModuleCity.ChangeCity}}
      */
-    this.changeCityHead = function ( d )
-    {
-        var titleText ;
-        var $headerCities = $(self.selector);
-
-        titleText = d.city.title ;
-
-        if (!titleText ) return ;
-
-        $headerCities.text(titleText)
-        if ( d.region.title && d.region.title !== d.city.title  ){
-            titleText += ', ' + d.region.title
+    this.ModuleCity = {
+        // Команда модулю изменить подпись названия города
+        ChangeCity : function (Location)
+        {
+            $(self.selectos.aCity).text(Location.cities)
         }
-        titleText += ', ' +d.country.title;
-        $headerCities.attr('title' , titleText  );
+    } ;
 
-    };
+
+
+
 
     this.getCityClient = function ()
     {
+
         var countryFilterKey = false ;
         var dataStorage = null ;
-        wgnz11.getModul('Storage_class').then(function () {
-            countryFilterKey = Storage_class.isset('country_filter');
+
+        this.getModul('Storage_class').then(function () {
+            countryFilterKey = Storage_class.isset( self.StorageName );
             if ( !countryFilterKey ){
                 get() ; return   ;
             }
-            dataStorage = Storage_class.get( 'country_filter' );
-            self.changeCityHead(dataStorage);
-            console.log( dataStorage );
+            dataStorage = Storage_class.get( self.StorageName );
+            self.ModuleCity.ChangeCity( dataStorage  )
         });
         if ( countryFilterKey ) return   ;
         function get()
         {
-            var data = self.AjaxDefaultData;
-            data.task = 'Ajax_getCityClient' ;
+            var data = Object.assign({}, self.AjaxDefaultData )
+            data.task = 'getCityData' ;
             wgnz11.getModul("Ajax").then(function (Ajax) {
                 Ajax.ReturnRespond = true ;
                 Ajax.send(data).then(function (r) {
-
-                    var d = r.data[0] ;
                     // Если результат не чего не вернул
-                    if (  !d.length ) return ;
+                    if (  !r.success || !r.data.length )  return ;
 
-                    self.changeCityHead(d);
-                    if ( !r.data[0].map.map_id ){
-                        console.log( d );
+                    countryFilterKey = Storage_class.isset( self.StorageName )
+                    if ( r.data[0].citiesAlias === self.__params.default_city && !countryFilterKey ){
+                        return;
                     }
 
-                    if (!countryFilterKey && r.data[0].map.map_id  ){
-                        console.log( r.data[0] );
-                    }
-
-
-                    console.log( r.data[0].map.map_id)
+                    self.ModuleCity.ChangeCity( r.data[0] )
 
                 });
-            })
+            });
         }
-
-        // this.tippyInt();
     }
 
 
@@ -135,7 +90,8 @@ this.selectos = {
      * slector :  .js-rz-city a
      */
     this.loadModalRegionSelect = function () {
-        var data = self.AjaxDefaultData;
+        var data = Object.assign({}, self.AjaxDefaultData )
+
         data.task = 'getModuleAjax' ;
         data.moduleName = 'region_select_modal' ;
 
@@ -144,6 +100,9 @@ this.selectos = {
             Ajax.send(data).then(function (r) {
                 Joomla.loadOptions({'gApi' : r.data[0].module.api })
                 new BuildModal(r)
+            },function (error)
+            {
+                console.log(error);
             });
         })
 
@@ -161,11 +120,23 @@ this.selectos = {
                 a.open( response.data[0].module.content ,{
                     baseClass: "modalRegionSelect",
                     afterShow   : function(instance, current)   {
+                        $( self.selectos.modalBtnApply ).on('click', function ()
+                        {
+                            a.close();
+                        })
                         // Подгрузить Googleapis Maps libraries=places
                         self.loadGoogleMap();
                     },
+                    beforeClose: function(){
+                        var relaod =  $( self.selectos.modalBtnApply ).attr('relaod')
+                        console.log(relaod)
+                        if ( relaod ) window.location.href = relaod ;
+                    },
                     afterClose  : function () {
-                        $('.pac-container.pac-logo').remove() ;
+                        $('body').trigger('onModalRegionSelectClose')
+
+
+
 
                         /**
                          * Удалить CSS модального окна после закрытия
@@ -208,8 +179,8 @@ this.selectos = {
 
 };
 
-window.RegionSelect.prototype = new GNZ11() ;
-
+window.CountryFilterRegionSelect.prototype = new window.CountryFilterCore() ;
+new CountryFilterRegionSelect( true  );
 
 
 /**
@@ -258,7 +229,8 @@ function country_filter_initMap() {
      * @param PlaceResult
      */
     function setCityPrefix (PlaceResult){
-
+        console.log('setCityPrefix')
+        alert('setCityPrefix')
         wgnz11.getModul("Ajax").then(function (Ajax) {
             var data = {
                 option : 'com_ajax' ,
@@ -314,7 +286,7 @@ function country_filter_initMap() {
     console.log( autocomplete )
 }
 
-new RegionSelect( true  );
+
 
 
 

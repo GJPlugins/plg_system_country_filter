@@ -25,11 +25,10 @@
 		 */
 		private function __construct ( $options = array() )
 		{
+			die('<b>DIE : '.__FILE__.' '.__LINE__.'  => '.__CLASS__.'::'.__FUNCTION__.'</b>' );
 			$this->app = \Joomla\CMS\Factory::getApplication();
 			
 			$this->db = \Joomla\CMS\Factory::getDbo() ;
-			
- 
 			return $this;
 		}#END FN
 		
@@ -105,16 +104,8 @@
 			die('<b>DIE : '.__FILE__.' '.__LINE__.'  => '.__CLASS__.'::'.__FUNCTION__.'</b>' );*/
 			
 			die('<b>DIE : '.__FILE__.' '.__LINE__.'  => '.__CLASS__.'::'.__FUNCTION__.'</b>' );
-			
-			
-			
-			
-			
-//			echo'<pre>';print_r( count( $data ) );echo'</pre>'.__FILE__.' '.__LINE__.'  ((  ::'.__FUNCTION__.' - $data ))<br>';
-//			echo'<pre>';print_r( $data );echo'</pre>'.__FILE__.' '.__LINE__.'  ((  ::'.__FUNCTION__.' - $data ))<br>';
-//			echo'<pre>';print_r( $data[$this->Stage] );echo'</pre>'.__FILE__.' '.__LINE__.'  ((  ::'.__FUNCTION__.' - $data ))<br>';
-		
 		}
+		
 		
 		public static function loadJSon ()
 		{
@@ -122,13 +113,23 @@
 			
 			$j = @file_get_contents( self::$Url );
 			$data = json_decode( $j );
-			$self->startProcess( $data );
+//			$self->startProcess( $data );
 			
 			die( '<b>DIE : ' . __FILE__ . ' ' . __LINE__ . '  => ' . __CLASS__ . '::' . __FUNCTION__ . '</b>' );
 		}
 		
 		public static function addButton ()
 		{
+			\JLoader::registerNamespace( 'GNZ11' , JPATH_LIBRARIES . '/GNZ11' , $reset = false , $prepend = false , $type = 'psr4' );
+			$GNZ11_js =  \GNZ11\Core\Js::instance();
+			$doc = \Joomla\CMS\Factory::getDocument();
+			$Jpro = $doc->getScriptOptions('Jpro') ;
+			$Jpro['load'][] = [
+				'u' => \Joomla\CMS\Uri\Uri::root() . '/plugins/system/country_filter/asset/js/admin.CountryFilter.Core.js' ,
+				't' => 'js',
+				'c' => '' ,
+			];
+			$doc->addScriptOptions('Jpro' , $Jpro ) ;
 			# TODO - Повесить на обработчик кнопки
 			// Запуск для обнавления таблиц справочника городов
 //			self::loadJSon();
@@ -136,11 +137,8 @@
 			\Joomla\CMS\Toolbar\ToolbarHelper::divider();
 			$bar = \Joomla\CMS\Toolbar\Toolbar::getInstance( 'toolbar' );         //ссылка на объект JToolBar
 			$title = \Joomla\CMS\Language\Text::_( 'COUNTRY_FILTER_LOAD_TABLE' ); //Надпись на кнопке
-			
-			
-			$dhtml = "<a href=\"index.php\" class=\"btn btn-small modal\" rel=\"{handler: 'iframe', size: {x: 500, y: 300}}\">
+			$dhtml = "<a href=\"index.php\" class=\"btn btn-small modal\" >
 					<i class=\"icon-list\" title=\"$title\"></i>$title</a>"; //HTML кнопки
-			
 			$bar->appendButton( 'Custom', $dhtml, 'list' );//давляем ее на тулбар
 		}
 		
@@ -153,7 +151,6 @@
 		 */
 		private function getQuery ( $data, $table, array $columns )
 		{
-			
 			$query = $this->db->getQuery( true );
 			$this->db->truncateTable( $table );
 			foreach ($data as $i => $obj)
@@ -168,14 +165,8 @@
 				{
 					$values .= $this->db->quote( $obj->parent_id ). ",";
 				}#END IF
-				
-				
-				
 				$values .= $this->db->quote( $obj->name ). ",";
 				$values .= $this->db->quote( $obj->alias );
-				
-				
-				
 				$query->values( $values );
 			}
 			$query->insert( $this->db->quoteName( $table ) )->columns( $this->db->quoteName( $columns ) );
