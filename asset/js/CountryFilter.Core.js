@@ -10,6 +10,10 @@ window.CountryFilterCore = function ( InitNew ) {
     this.__group = 'system' ;
     this.__plugin = 'country_filter' ;
     this.__params = Joomla.getOptions( this.__plugin , {} );
+
+
+
+
     /**
      * селекторы елементов плагина
      * @type {{inputCityAutocomplete: string, aCity: string, cityTop: string}}
@@ -92,7 +96,7 @@ window.CountryFilterCore = function ( InitNew ) {
     }
 
     this.Init = function () {
-        this.load.js( siteUrl + 'plugins/system/country_filter/asset/js/CountryFilter.RegionSelect.js')
+        this.load.js( this.__params.siteUrl + 'plugins/system/country_filter/asset/js/CountryFilter.RegionSelect.js')
     };
     /**
      * найти город по названию
