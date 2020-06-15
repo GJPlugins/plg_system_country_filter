@@ -11,7 +11,7 @@
     <description><![CDATA[Developed & Powered by <a href="http://back-end.ga/" target="_blank">back-end.ga/</a>]]></description>
     <files>
         <folder>asset</folder>
-        <folder>field</folder>
+        <folder>fields</folder>
         <folder>Helpers</folder>
         <folder>language</folder>
         <folder>sql</folder>
