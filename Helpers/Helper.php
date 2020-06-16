@@ -75,6 +75,7 @@
 			//  Получение IP адреса пользователя
 //			self::$UserIP = \GNZ11\Core\Platform\PlatformUtility::getUserHostAddress();
 
+
 			return $this;
 		}#END FN
 		
@@ -178,90 +179,146 @@
 			$city = $this->app->input->get( 'city' , false  , 'STRING' );
 			$alias = $this->app->input->get( 'alias' , false  , 'STRING' );
 			$window_location_href = $this->app->input->get( 'window_location_href' , false  , 'RAW' );
-			
-			$resArr = \CountryFilter\Helpers\CitiesDirectory::getLocationByCityName( $city );
 
-			# город не найден
-			if( !$resArr )
+
+			
+
+			# Получить даные для выбранного города
+			$newCityData = \CountryFilter\Helpers\CitiesDirectory::getLocationByCityName( $city );
+			# проверяем что новый город является значением citiesAlias в справчнике городов
+			# если город не найден
+			if( !$newCityData )
 			{
 				echo new \Joomla\CMS\Response\JsonResponse( false , \Joomla\CMS\Language\Text::_('COUNTRY_FILTER_CITY_NOT_FOUND') , true  ) ;
 				$this->app->close();
 			}#END IF
-			
-			# Текущий город
+
+			# Для поддоменов
+			$subdomain = null;
+
+			# Текущий город из Cookie
 			$cityData = $this->getCityData();
+
 			
 			/**
 			 * Собираем Uri с учетом региона
 			 */
 			$uri = \Joomla\CMS\Uri\Uri::getInstance( $window_location_href );
+			# путь Url
 			$path = $uri->getPath();
-
-
-
-
+			# рабор на составляющие
 			$parts = array_filter(array_map( 'trim' , explode( '/' , $path ) ));
 
 
-
-			
-			if( $parts[1] == $cityData['citiesAlias'] )
+			/**
+			 * Обработка поддоменов
+			 * Если поддомен указан как директория то вынимаем его из массива
+			 * и первый элемент м индексом 0 - станет следующий элемент
+			 */
+			if( $this->params->get('subdomain' , 0 , 'INT') )
 			{
-				unset($parts[1]) ;
-
-			}else{
-
+				$subdomain = array_shift($parts)  ;
 			}#END IF
 
-//			echo'<pre>';print_r( $cityData );echo'</pre>'.__FILE__.' '.__LINE__;
-//			echo'<pre>';print_r( $parts );echo'</pre>'.__FILE__.' '.__LINE__;
+			# проверить что первый элемент в пути это явлеется городом
+			$cityInPath  = \CountryFilter\Helpers\CitiesDirectory::getLocationByCityName( $parts[ 0 ]  );
 
-			$path = implode('/', $parts);
-
-
-			if( $resArr['citiesAlias'] != $cityData['citiesAlias'] )
+			# если первый элемент в пути это город
+			if( !empty($cityInPath) )
 			{
+				# Если новый город не является городом по умолчанию
+				if( $newCityData['citiesAlias'] != $this->params->get('default_city') ){
+					# заменяем первый элемент в пути на новый город
+					$parts[ 0 ] = $newCityData['citiesAlias'];
+				}
 
-//
 			}else{
-//
+				# Если новый город не является городом по умолчанию
+				if( $newCityData['citiesAlias'] != $this->params->get('default_city') )
+				{
+					# ставим первым алиас нового города
+					array_unshift( $parts , $newCityData[ 'citiesAlias' ] );
+				}
 			}#END IF
 
-
-
-
-			$uri->setPath($path);
-
+			# TODO Разабраться с параметром - sef_rewrite
 			if (!$this->app->get('sef_rewrite'))
 			{
-				$uri->setPath('index.php/' . $uri->getPath());
+				# $uri->setPath('index.php/' . $subdomain . $uri->getPath());
+
 			}
 
+			# Устанавливаем новый путь
+			$uri->setPath(   implode('/', $parts ) );
 
-			if( $resArr['citiesAlias'] == $this->params->get('default_city') )
-			{
-				$uri->setPath(  implode('/', $parts)    );
-				$this->setCityCookie(null);
-			}else{
-				# Закидываем   префикс города в начало пути
-				$path = $resArr['citiesAlias'] . '/' . $path;
-				$uri->setPath(  $path   );
-				$this->setCityCookie($resArr['citiesAlias'] );
-			}#END IF
-
+			# Создаем ссылку для перенапрвыления
 			$redirectUri = $uri->base() . $uri->toString(array('path', 'query', 'fragment'));
 
 
+			# Убираем из частей пути все - кроме города
+			$parts = array_slice($parts , 0 , 1);
+			# Устанавливаем новый путь
+			$uri->setPath(   implode('/', $parts ) );
+			# Создаем ссылку для перенапрвыления на главную
+			$redirectUriBase  = $uri->base() . $uri->toString(array('path', 'query', 'fragment'));
 
 
-			
+			# Сохраняем город в Cookie
+			$this->setCityCookie($newCityData['citiesAlias'] );
 
+			##### Создаем ответ
 			# Собираем урл для перенапровления
-			$resArr['rLink']  = $redirectUri ;
-			$resArr['rLinkRoot']   = \Joomla\CMS\Uri\Uri::root() . $resArr['citiesAlias'] ;
-			
-			echo new \Joomla\CMS\Response\JsonResponse( $resArr , \Joomla\CMS\Language\Text::_('COUNTRY_FILTER_CITY_FOUND') , false  ) ;
+			$newCityData['rLink']  = $redirectUri ;
+			$newCityData['rLinkRoot']   = $redirectUriBase ;
+
+			echo new \Joomla\CMS\Response\JsonResponse( $newCityData , \Joomla\CMS\Language\Text::_('COUNTRY_FILTER_CITY_FOUND') , false  ) ;
 			$this->app->close();
+
+
+
+
+
+
+
+
+			/*if( $parts[1] == $cityData['citiesAlias'] )
+			{
+				unset($parts[1]) ;
+			}#END IF*/
+
+
+
+			# Создаем путь из того что в нем осталось
+			/*$path = implode('/', $parts);*/
+			
+
+			
+			
+//			$uri->setPath($path);
+
+
+			
+
+			
+
+
+			/*if( $newCityData['citiesAlias'] == $this->params->get('default_city') )
+			{
+				$uri->setPath(  $subdomain . implode('/', $parts )    );
+				$this->setCityCookie(null);
+			}else{
+				# Закидываем   префикс города в начало пути
+				$path =  $newCityData['citiesAlias'] .  ( !empty($path) ? '/'.$path : null  );
+
+				$uri->setPath(  $path   );
+				$this->setCityCookie($newCityData['citiesAlias'] );
+			}#END IF*/
+
+
+
+			/*$redirectUri = $uri->base() . $uri->toString(array('path', 'query', 'fragment'));*/
+
+
 		}
 		
 		

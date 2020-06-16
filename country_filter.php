@@ -152,9 +152,13 @@
 		 */
 		public function preprocessParseRule ( &$router, &$uri )
 		{
+
+			if( !$this->app->isClient( 'site' ) )
+				return false; #END IF
+
 			# префикс города найден или используется город по умолчанию
 			$found = false;
-
+			$subdomain = null;
 			# Получаем город по усолчанию из настроек
 			$this->default_region = $this->params->get( 'default_city' , 'moskva' );
 
@@ -165,11 +169,17 @@
 				# Получили SEF путь e.t : austria/en
 				$path = $uri->getPath();
 				$parts = explode( '/', $path );
+				$parts = array_filter(array_map( 'trim' , explode( '/' , $path ) ));
 
+				# Обработка поддоменов
+				if( $this->params->get('subdomain' , 0 , 'INT') )
+				{
+//					$subdomain = array_shift($parts) . '/' ;
+				}#END IF
 
-//				echo'<pre>';print_r( $parts );echo'</pre>'.__FILE__.' '.__LINE__;
-//				die(__FILE__ .' '. __LINE__ );
+				 
 
+				
 				# Проверяем Если первым параметром в запросе является название региона
 				# из из справчника
 				# иначе берем по умолчанию
@@ -178,14 +188,20 @@
 					$this->countries = \CountryFilter\Helpers\CitiesDirectory::getLocationByCityName( $parts[ 0 ] );
 					# Если город найден убераем город из пути
 					# Сохраняем путь в роутер
+					
+
+
+					
 					if( is_array($this->countries) && in_array( $parts[ 0 ] , $this->countries ) )
 					{
 						# Вытаскиваем префикс города из пути и запоминаем
 						$this->country = array_shift( $parts );
 						$uri->setPath( implode( '/' , $parts ) );
 
-						# Сохряняем в Cookie
-//						$this->Helper->setCityCookie($this->country);
+//						echo'<pre>';print_r( $parts );echo'</pre>'.__FILE__.' '.__LINE__;
+
+
+
 
 
 
@@ -220,22 +236,8 @@
 					}else{
 						$this->country = $this->default_region;
 					}#END IF
-
-
-
 				}
 
-				if( $this->mode_sef )
-				{
-
-					if( $this->country == $this->default_region )
-					{
-
-					}#END IF
-					// Create a cookie.
-//					$this->setLanguageCookie($lang_code);
-
-				}
 
 
 
@@ -246,12 +248,28 @@
 					$this->app->input->set( 'sitecountry', $this->country );
 					$array = array( 'sitecountry' => $this->country );
 				}
+
+
+
+
+
+
+				/*$path = $uri->getPath();
+				echo'<pre>';print_r( $this->app->input  );echo'</pre>'.__FILE__.' '.__LINE__;
+				echo'<pre>';print_r( $uri  );echo'</pre>'.__FILE__.' '.__LINE__;
+				echo'<pre>';print_r( $path  );echo'</pre>'.__FILE__.' '.__LINE__;
+				echo'<pre>';print_r( $this->country );echo'</pre>'.__FILE__.' '.__LINE__;
+				die(__FILE__ .' '. __LINE__ );*/
+
 				// Create a cookie.
 				if ($this->Helper->getCityCookie() !== $this->country)
 				{
+					# Сохряняем в Cookie
 					$this->Helper->setCityCookie($this->country);
 				}
 				return $array;
+			}else{
+				die(__FILE__ .' '. __LINE__ );
 			}
 		}
 		
@@ -270,15 +288,32 @@
 		 */
 		public function preprocessBuildRule( &$router,  &$uri)
 		{
+
 			$region = $uri->getVar('sitecountry', $this->default_region );
+
+//			$region = 'irkutsk' ;
 			$uri->setVar('sitecountry', $region);
-			
+
+
+			$path = $uri->getPath();
+//			echo'<pre>';print_r( $region  );echo'</pre>'.__FILE__.' '.__LINE__;
+//			echo'<pre>';print_r( $this->app->input  );echo'</pre>'.__FILE__.' '.__LINE__;
+//			echo'<pre>';print_r( $uri  );echo'</pre>'.__FILE__.' '.__LINE__;
+//			echo'<pre>';print_r( $path  );echo'</pre>'.__FILE__.' '.__LINE__;
+//			echo'<pre>';print_r( $this->country );echo'</pre>'.__FILE__.' '.__LINE__;
+//			die(__FILE__ .' '. __LINE__ );
+
+
 			if( isset( $this->countries[$region]) )
 			{
 				$uri->setVar('sitecountry', $region);
 			}#END IF
-			
-			
+
+			/*echo'<pre>';print_r( $uri  );echo'</pre>'.__FILE__.' '.__LINE__;
+			echo'<pre>';print_r( $this->country  );echo'</pre>'.__FILE__.' '.__LINE__;
+			die(__FILE__ .' '. __LINE__ );*/
+
+
 			# TODO - Возможная ошибка !!!
 			if(!empty($this->country)  &&  $this->country != $this->default_region  ) {
 				$parts = explode('/', $uri->getPath());
@@ -289,19 +324,28 @@
 		 
 		
 		}
-		
+
 		/**
-		 *      # 3
-		 * @param                     $router
-		 * @param Uri $uri
+		 * Срабатывает после создания SEF ссылки ( на  каждой ссылки ) # 3
+		 * @param $router object
+		 * @param \Uri $uri object
+		 *
+		 * @since 3.9
 		 */
-		public function postprocessSEFBuildRule(&$router, Uri &$uri)
+		public function postprocessSEFBuildRule( &$router , &$uri )
 		{
-			$uri->delVar('sitecountry');
+			$uri->delVar( 'sitecountry' );
+//			echo '<pre>'; print_r( $uri ); echo '</pre>' . __FILE__ . ' ' . __LINE__;
 		}
 		
 		public function onAfterRoute ()
 		{
+//			$uri = \Joomla\CMS\Uri\Uri::getInstance();
+
+//			echo'<pre>';print_r( $uri );echo'</pre>'.__FILE__.' '.__LINE__;
+//			echo'<pre>';print_r( $this->app->input );echo'</pre>'.__FILE__.' '.__LINE__;
+
+			
 		}
 		
 		public function onAfterDispatch ()

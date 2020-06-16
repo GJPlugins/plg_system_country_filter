@@ -16,6 +16,9 @@ window.CountryFilterCore = function (  ) {
     {
         var $wrpSubForm = $('[name="jform[params][top_city]"]').parent();
         var $selectV ;
+
+        console.log( $('select.citiesAlias') )
+
         $wrpSubForm.on('change.top_city', 'select.citiesAlias' , function (event)
         {
             event.preventDefault();

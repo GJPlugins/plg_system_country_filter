@@ -60,12 +60,23 @@
 		public static function getLocationByCityName( $city )
 		{
 
+
+
+
+
 			if( empty($city) )
 			{
 				return null ;
 			}#END IF
 
+			if( $city  != 'moskva' )
+			{
+//				echo'<pre>';print_r( $city);echo'</pre>'.__FILE__.' '.__LINE__;
+//				die(__FILE__ .' '. __LINE__ );
+			}#END IF
 
+
+			
 			$self = self::instance();
 
 			$hash = md5( ( is_array( $city ) ? json_encode( $city ) : $city ) );

@@ -6,10 +6,13 @@ window.RegionSelectModal = function ( InitNew ) {
     var $ = jQuery ;
     var self = this ;
 
+    console.log( InitNew )
 
     this.Init = function () {
         // click - по подсказкам по городам
         $(this.selectos.cityTop).on('click' , this.onCityTopSelect );
+
+        console.log( $( this.selectos.cityTop ) )
 
         $(self.selectos.inputCityAutocomplete).on('focus' , function (event)
         {
@@ -67,14 +70,8 @@ window.RegionSelectModal = function ( InitNew ) {
            $( self.selectos.modalBtnApply ).on('click.modal' , function (event)
             {
                 event.preventDefault();
-
-                console.log( LData )
-
-              //  window.location.href =  LData.rLink ;
             }).attr('relaod' , LData.rLink ) ;
-            $(self.selectos.modalLinkRoot).attr(LData.rLinkRoot)
-
-
+            $(self.selectos.modalLinkRoot).attr('href',LData.rLinkRoot)
         });
 
         // self.changeCityHead( city );
@@ -82,7 +79,10 @@ window.RegionSelectModal = function ( InitNew ) {
 
 
     }
-    if ( InitNew ){ this.Init() }
+    setTimeout(function () {
+        if ( InitNew ){ self.Init() }
+    },2000)
+
 
 };
 window.RegionSelectModal.prototype = new window.CountryFilterRegionSelect()

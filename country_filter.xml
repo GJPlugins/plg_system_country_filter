@@ -36,6 +36,7 @@
 					readonly=""
 					showon=""
 					filter="raw" />
+
 				<field name="remove_default_city"
 					type="radio"
 					default="1"
@@ -45,6 +46,20 @@
 					<option value="1">JYES</option>
 					<option value="0">JNO</option>
 				</field>
+				<field name="subdomain"
+					type="list"
+					default="0"
+					required=""
+					label="COUNTRY_FILTER_SUBDOMAIN"
+					description="COUNTRY_FILTER_SUBDOMAIN_DESC"
+					class="subdomain "
+					multiple="false"
+					readonly=""
+					showon=""
+					filter="int" >
+						<option value="0">COUNTRY_FILTER_NO_SUBDOMAIN</option>
+						<option value="1">COUNTRY_FILTER_SUBDOMAIN_AS_DIRECTORY</option>
+					</field>
 
 
 					

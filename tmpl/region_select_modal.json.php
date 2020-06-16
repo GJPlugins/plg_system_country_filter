@@ -26,9 +26,12 @@
 	 * Случайный город
 	 */
 	$RansomCity = CitiesDirectory::getRansomCity();
-	
-	CitiesDirectory::getLocationByCityName($arrCityTop_Def);
-	
+
+//	$this->CityData = CitiesDirectory::getLocationByCityName($arrCityTop_Def);
+
+
+
+
 	$cities_title = ( isset( $this->CityData['cities'] ) ? $this->CityData['cities'] : null );
 	$regions_title = ( isset( $this->CityData['regions'] ) ? $this->CityData['regions'] : null );
 	$country_title = ( isset( $this->CityData['country'] ) ? $this->CityData['country'] : null );
@@ -98,10 +101,11 @@
 					# Если TOP подсказки включены
 					if( $this->params->get( 'on_top_city', true ) )
 					{
-						$arrCityTop = $this->params->get( 'top_city', false );
-                        foreach ($arrCityTop as $item)
+						$arrCityTop = $this->params->get( 'top_city', false , 'ARRAY' );
+
+						foreach ($arrCityTop as $item)
                         {
-	                        ?>
+                            ?>
                             <li _ngcontent-c39="" class="header-location__popular-item">
                                 <a _ngcontent-c39="" data-city_alias="<?= $item->citiesAlias ?>"
                                    class="header-location__popular-link">
