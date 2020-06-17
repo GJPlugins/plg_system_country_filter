@@ -227,9 +227,15 @@
 			if( !empty($cityInPath) )
 			{
 				# Если новый город не является городом по умолчанию
-				if( $newCityData['citiesAlias'] != $this->params->get('default_city') ){
+				if( $newCityData[ 'citiesAlias' ] != $this->params->get( 'default_city' ) )
+				{
 					# заменяем первый элемент в пути на новый город
-					$parts[ 0 ] = $newCityData['citiesAlias'];
+					$parts[ 0 ] = $newCityData[ 'citiesAlias' ];
+				}
+				# Если по умолчанию - забираем его из пути что бы не поазывать !
+				else
+				{
+					array_shift( $parts );
 				}
 
 			}else{
