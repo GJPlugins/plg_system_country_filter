@@ -1,0 +1,16 @@
+.region_select-link_cities{}
+
+.region_select-link_cities ul {
+    list-style: none;
+}
+
+.region_select-link_cities ul li {
+    float: left;
+    margin: 2px 5px;
+    background: #FF5722;
+}
+
+.region_select-link_cities ul li a {
+    color: #fff;
+    margin: 5px;
+}

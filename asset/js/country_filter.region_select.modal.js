@@ -5,24 +5,76 @@
 window.RegionSelectModal = function ( InitNew ) {
     var $ = jQuery ;
     var self = this ;
-
+    /**
+     * После получения ответа - Переход на полученный город
+     * @type {boolean}
+     */
+    this.ReloadAfterRespond = false ;
     console.log( InitNew )
 
     this.Init = function () {
         // click - по подсказкам по городам
         $(this.selectos.cityTop).on('click' , this.onCityTopSelect );
 
-        console.log( $( this.selectos.cityTop ) )
-
-        $(self.selectos.inputCityAutocomplete).on('focus' , function (event)
+        var $inputCityAutocomplete = $(self.selectos.inputCityAutocomplete);
+        var $form = $inputCityAutocomplete.closest('form')
+        // Поле ввода города получает фокус
+        $inputCityAutocomplete.on('focus' , function (event)
         {
-            event.preventDefault();
+            var $inputCityAutocomplete = $(self.selectos.inputCityAutocomplete);
+            console.clear();
+            // Запрещаем отправку формы
+            $form.on('submit' , function (event) {
+                event.preventDefault();
+                EVT_User()
+                return false ;
+            })
+            // Обрабатываем нажатие ENTER
+            $inputCityAutocomplete.on('keydown',function(e) {
+                if (e.which === 13) {
+                    console.clear()
+                    console.log(e)
+                    EVT_User();
+                    return false ;
+                }
+            });
+
+            // Слушаем событие клик по кнопке приминить
+            $( self.selectos.modalBtnApply ).off('click.RegionSelect')
+                .on('click.region_select_modal', EVT_User ) ;
+
+
+            $(self.selectos.modalLinkRoot).on('click.region_select_modal', EVT_User )
+
             console.log( 'focus' );
         }).on('blur' , function (event)
         {
             event.preventDefault();
-            console.log( 'blur' );    
+
+            if ( $(event.relatedTarget).hasClass( 'btn-Apply' ) ){
+                EVT_User(event);
+            }
+
+
+            console.log(event)
+
         });
+
+        /**
+         * Получить значение из инпута - передать для отрпавки запроса о городе
+         * @constructor
+         */
+        var EVT_User = function  (event){
+            event.preventDefault();
+            var Data = {
+                city : $inputCityAutocomplete.val().trim()
+            } ;
+
+            // Отправить данные о выбранном пользователем гооде
+            self.sendLocationData( Data );
+            self.ReloadAfterRespond = true ;
+            return false ;
+        }
 
         // Если есть в локальном  хранилище информация о городе
         // - вставить название города в поле Autocomplete
@@ -34,8 +86,6 @@ window.RegionSelectModal = function ( InitNew ) {
                 $(self.selectos.inputCityAutocomplete).val( dataStorage.cities )
             }
         });
-
-
     };
 
     /**
@@ -44,14 +94,28 @@ window.RegionSelectModal = function ( InitNew ) {
      */
     this.onCityTopSelect = function (event)
     {
-        var Data = {},
-            Location = {} ;
+        var Data = {}  ;
 
         event.preventDefault() ;
 
         Data.alias = $(this).data('city_alias')
         Data.city = $(this).text().trim();
         Data.window_location_href = window.location.href
+        // Отправить данные о выбранном пользователем гооде
+        self.sendLocationData( Data );
+
+        // self.changeCityHead( city );
+        // console.log( alias )
+
+
+    }
+
+    /**
+     * Отправить данные о выбранном пользователем гооде
+     * @param Data
+     */
+    this.sendLocationData = function(Data){
+        var Location = {} ;
         /**
          * найти город по названию
          */
@@ -67,17 +131,23 @@ window.RegionSelectModal = function ( InitNew ) {
             self.SaveCityData( LData );
 
             // Установить ссылку для редиректа
-           $( self.selectos.modalBtnApply ).on('click.modal' , function (event)
+            $( self.selectos.modalBtnApply ).on('click.modal' , function (event)
             {
                 event.preventDefault();
             }).attr('relaod' , LData.rLink ) ;
-            $(self.selectos.modalLinkRoot).attr('href',LData.rLinkRoot)
+            $(self.selectos.modalLinkRoot).attr('href',LData.rLinkRoot);
+
+            /**
+             * Если переход на полученный город
+             */
+            if (self.ReloadAfterRespond){
+                window.location.href = LData.rLink ;
+                // закрыть модальное окно
+                self.RegionSelectModalWindow.close();
+
+            }
+
         });
-
-        // self.changeCityHead( city );
-        // console.log( alias )
-
-
     }
     setTimeout(function () {
         if ( InitNew ){ self.Init() }

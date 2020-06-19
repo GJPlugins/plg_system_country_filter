@@ -366,8 +366,15 @@
 			if( $this->app->isClient( 'site' ) )
 			{
 				$helper = \CountryFilter\Helpers\Helper::instance( $this->params );
-				$Modul = $helper->getModul();
-				$modules[] = $Modul;
+				$modules[]  = $helper->getModul();
+				if( $this->params->get('module_link_cities_on' , 0 , 'INT') )
+				{
+					$modules[]  = $helper->getModul('link_cities');
+				}#END IF
+
+
+
+
             }
 			
 			return $modules;

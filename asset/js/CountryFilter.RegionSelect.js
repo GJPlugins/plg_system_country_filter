@@ -11,8 +11,28 @@ window.CountryFilterRegionSelect = function ( InitNew ) {
     this.Init = function () {
         var $a = $(this.selectos.aCity) ;
         $a.on('click' , self.loadModalRegionSelect );
-        this.getCityClient() ;
+        this.getCityClient();
+        $(this.selectos.link_cities).on('click' , self.onLinkCities );
     };
+    this.onLinkCities = function (event) {
+        event.preventDefault() ;
+        var Data = {},
+            linkHref = $( this ).attr('href');
+        Data.alias = $(this).data('city_alias')
+        Data.city = $(this).text().trim();
+        self.getLocationByCityName(Data).then(function ( Location )
+        {
+            var LData = Location.data ;
+            // Команда модулю изменить подпись названия города
+            self.ModuleCity.ChangeCity( LData );
+            // Сохранить данные о выбраном городе
+            self.SaveCityData( LData );
+            window.location.href = linkHref ;
+        });
+        console.log( Data );
+        console.log( this );
+
+    }
     /**
      * Операции над модулем
      * @type {{ChangeCity: Window.CountryFilterRegionSelect.ModuleCity.ChangeCity}}
@@ -108,7 +128,7 @@ window.CountryFilterRegionSelect = function ( InitNew ) {
 
 
 
-
+        this.RegionSelectModalWindow = false ;
 
         /**
          * Создать модальное окно с выбором города
@@ -117,17 +137,21 @@ window.CountryFilterRegionSelect = function ( InitNew ) {
          */
         function BuildModal(response){
             wgnz11.__loadModul.Fancybox().then(function (a) {
+
                 a.open( response.data[0].module.content ,{
                     baseClass: "modalRegionSelect",
                     afterShow   : function(instance, current)   {
-                        $( self.selectos.modalBtnApply ).on('click', function ()
+                        self.RegionSelectModalWindow = a ;
+
+                        $( self.selectos.modalBtnApply ).on('click.RegionSelect', function ()
                         {
-                            a.close();
+                            self.RegionSelectModalWindow.close();
                         })
                         // Подгрузить Googleapis Maps libraries=places
                         self.loadGoogleMap();
                     },
                     beforeClose: function(){
+                        if (self.ReloadAfterRespond) return  false ;
                         var relaod =  $( self.selectos.modalBtnApply ).attr('relaod')
                         console.log(relaod)
                         if ( relaod ) window.location.href = relaod ;

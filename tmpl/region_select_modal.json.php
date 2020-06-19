@@ -120,7 +120,7 @@
 				?>
             </ul>
 
-            <form _ngcontent-c39="" action="" class="header-location__search ng-untouched ng-pristine ng-valid"
+            <form _ngcontent-c39="" onsubmit="return false" class="header-location__search ng-untouched ng-pristine ng-valid"
                   novalidate="">
 
                 <label _ngcontent-c39="" class="header-location__search-label" for="cityinput">
@@ -150,10 +150,10 @@
 
             <fieldset _ngcontent-c77="">
                 <div _ngcontent-c77="" class="header-location__footer">
-                    <a _ngcontent-c77="" apprzroute="" class="button button_size_medium button_color_gray"
+                    <a _ngcontent-c77="" apprzroute="" class="btn-Apply button button_size_medium button_color_gray"
                        href="<?= \Joomla\CMS\Uri\Uri::root(true) ?>">
                         Перейти на главную страницу </a>
-                    <button _ngcontent-c77="" class="button button_size_medium button_color_green"> Применить</button>
+                    <button _ngcontent-c77="" class="btn-Apply button button_size_medium button_color_green"> Применить</button>
                 </div>
             </fieldset>
 

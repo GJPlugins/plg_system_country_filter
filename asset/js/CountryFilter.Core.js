@@ -24,6 +24,9 @@ window.CountryFilterCore = function ( InitNew ) {
         inputCityAutocomplete : '#pac-input' ,
         modalBtnApply : 'button[_ngcontent-c77]' ,
         modalLinkRoot : 'a[_ngcontent-c77]' ,
+        //
+        link_cities : 'a.link_cities-a' ,
+
     };
 
 

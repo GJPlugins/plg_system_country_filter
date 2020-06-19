@@ -87,6 +87,59 @@
 					<option value="0">COUNTRY_FILTER_OPTION_SESSION</option>
 				</field>
             </fieldset>
+			<fieldset name="module_link_cities">
+				<field name="module_link_cities_on"
+					type="radio"
+					default="0"
+					label="COUNTRY_FILTER_MODULE_LINK_CITIES_ON"
+					description="COUNTRY_FILTER_MODULE_LINK_CITIES_ON_DESC"
+					class="btn-group btn-group-yesno">
+					<option value="1">JYES</option>
+					<option value="0">JNO</option>
+				</field>
+				<field name="module_link_cities_showtitle"
+					type="radio"
+					default="0"
+					label="COUNTRY_FILTER_MODULE_SHOWTITLE"
+					description="COUNTRY_FILTER_MODULE_SHOWTITLE_DESC"
+					class="btn-group btn-group-yesno">
+					<option value="1">JYES</option>
+					<option value="0">JNO</option>
+				</field>
+				<field name="module_link_cities_title"
+					type="text"
+					default=""
+					class="module_title "
+					readonly=""
+					required=""
+					label="COUNTRY_FILTER_MODULE_TITLE"
+					description="COUNTRY_FILTER_MODULE_TITLE_DESC"
+					showon="module_link_cities_showtitle:1"
+					filter="raw" />
+
+
+				 
+
+				<field name="module_link_cities_module_position"
+					   type="moduleposition"
+					   default=""
+					   class="module_link_cities_module_position "
+					   label="COUNTRY_FILTER_MODULE_LINK_CITIES_MODULE_POSITION"
+					   description="COUNTRY_FILTER_MODULE_LINK_CITIES_MODULE_POSITION_DESC"
+					   showon="module_link_cities_on:1"
+					   filter="raw" />
+				<field name="link_cities"
+					   type="listcity"
+					   default=""
+					   required=""
+					   label="COUNTRY_FILTER_CITIES"
+					   description=""
+					   class="link_cities "
+					   multiple="1"
+					   readonly=""
+					   showon="module_link_cities_on:1"
+					   filter="raw" />
+			</fieldset>
             <fieldset name="module">
 
 				<field name="module_position"

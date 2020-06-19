@@ -54,7 +54,12 @@
 		private  static  $GoogleApiFieldArr = [
 			'country_autocomplete',
 		];
-		
+		/**
+		 * @var array - список городов для модуля ссылок
+		 * @since 3.9
+		 */
+		private $LinkCitiesData ;
+
 		/**
 		 * helper constructor.
 		 *
@@ -326,7 +331,8 @@
 
 
 		}
-		
+
+
 		
 		/**
 		 * Загрузчик модулей
@@ -339,13 +345,32 @@
 		{
 			\GNZ11\Core\Js::instance();
 			$objRegistry = new Registry;
+
+			if( $moduleName == 'link_cities' )
+			{
+				$module_id = 2999999999 ;
+				$module_position = $this->params->get('module_link_cities_module_position' , 'region-select') ;
+				$link_cities_array = $this->params->get('link_cities' , [] , 'ARRAY');
+				$this->LinkCitiesData = \CountryFilter\Helpers\CitiesDirectory::getLocationByCityName( $link_cities_array    );
+			}else{
+				$module_id = 1999999999 ;
+				$module_position = $this->params->get('module_position' , 'region-select') ;
+
+			}#END IF
+
+			$showTitle = $this->params->get('module_'.$moduleName.'_showtitle' , 0 , 'INT');
+			$title = $this->params->get('module_'.$moduleName.'_title' , null );
+			
+			
+			
+			
 			$settingModule = [
-				'id' => 1999999999,
-				'title' => 'Backup on Update',
+				'id' => $module_id,
+				'title' => $title ,
 				'module' => 'mod_custom',
-				'position' => $this->params->get('module_position' , 'region-select') ,
+				'position' =>  $module_position ,
 				'content' =>  $this->loadTemplate( $moduleName ) ,
-				'showtitle' => 0,
+				'showtitle' => $showTitle ,
 				'params' => json_encode( [
 					"prepare_content" => "0",
 					"layout" => "_:default",
@@ -363,6 +388,9 @@
 			$settingModule = array_merge_recursive( $settingModule , $options ) ;
 			$objRegistry->loadArray($settingModule);
 			$fakeModule = $objRegistry->toObject() ;
+
+
+
 			return $fakeModule ;
 		}
 		
