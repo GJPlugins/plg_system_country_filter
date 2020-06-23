@@ -110,7 +110,7 @@ window.CountryFilterCore = function ( InitNew ) {
      */
     this.getLocationByCityName = function ( Data )
     {
-        data = $.extend( true , this.AjaxDefaultData , Data );
+        var data = $.extend( true , this.AjaxDefaultData , Data );
         data.task = 'getLocationByCityName';
         return new Promise( function ( resolve , reject )
         {
