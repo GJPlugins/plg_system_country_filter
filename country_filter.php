@@ -80,9 +80,7 @@
 				$this->Helper = \CountryFilter\Helpers\Helper::instance( $this->params );
 			} catch( Exception $e )
 			{
-				echo '<pre>';
-				print_r( $e );
-				echo '</pre>' . __FILE__ . ' ' . __LINE__;
+				echo '<pre>'; print_r( $e ); echo '</pre>' . __FILE__ . ' ' . __LINE__;
 				die( __FILE__ . ' ' . __LINE__ );
 			}
 
