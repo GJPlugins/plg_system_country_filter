@@ -234,6 +234,31 @@
 
 
 			</fieldset>
+			<fieldset name="ShortCode">
+				<field name="ShortCode_on"
+					type="radio"
+					default="0"
+					label="COUNTRY_FILTER_SHORT_CODE_ON"
+					description="COUNTRY_FILTER_SHORT_CODE_ON_DESC"
+					class="btn-group btn-group-yesno">
+					<option value="1">JYES</option>
+					<option value="0">JNO</option>
+				</field>
+				<field name="ShortCode_city_name"
+					type="text"
+					default="[[[CITY]]]"
+					class="ShortCode_city_name "
+					readonly=""
+					required=""
+					label="COUNTRY_FILTER_SHORT_CODE_CITY_NAME"
+					description="COUNTRY_FILTER_SHORT_CODE_CITY_NAME_DESC"
+					showon="ShortCode_on:1"
+					filter="raw" />
+					
+					
+				
+				 
+			</fieldset>
 			<fieldset name="api">
 				<field name="google_map_api_key"
 					type="text"

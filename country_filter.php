@@ -86,17 +86,9 @@
 
 			if( !$this->app->isClient( 'site' ) )
 				return; #END IF
-			
-			
-			
-			
-			
-			
-			
-			$this->mode_sef     = $this->app->get('sef', 0);
-			
 
-			
+			$this->mode_sef     = $this->app->get('sef', 0);
+
 			if( $this->params->get('debug' , false  ) )
 			{
 				$this->Debug = \CountryFilter\Helpers\Debug::instance( $this->params ) ;
@@ -383,8 +375,11 @@
 		
 		public function onBeforeRender()
 		{
-			if( $this->app->isClient( 'site' ) )
-				return; #END IF
+			if( $this->app->isClient( 'site' ) ){
+
+				return;
+			}#END IF
+
 			
 			$option = $this->app->input->get('option') ;
 			$view = $this->app->input->get('view') ;
@@ -399,7 +394,20 @@
 			
 			
 		}
-		
+		/**
+		 * onAfterRender.
+		 *
+		 * @return  void
+		 *
+		 * @since   1.0
+		 */
+		public function onAfterRender()
+		{
+			if( $this->app->isClient( 'site' ) ){
+				CountryFilter\Helpers\Site::ReplaceShortCode( $this->params );
+				return;
+			}#END IF
+		}
 		
 		public function onBeforeRespond(){
 			
