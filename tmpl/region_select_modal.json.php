@@ -103,6 +103,9 @@
 					{
 						$arrCityTop = $this->params->get( 'top_city', false , 'ARRAY' );
 
+
+						
+
 						foreach ($arrCityTop as $item)
                         {
                             ?>
