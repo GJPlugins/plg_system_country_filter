@@ -60,6 +60,9 @@
 		public static function getLocationByCityName( $city )
 		{
 
+
+
+
 			if( empty($city) )
 			{
 				return null ;

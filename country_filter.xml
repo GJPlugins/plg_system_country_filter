@@ -7,7 +7,7 @@
     <license>Proprietary. Copyrighted Commercial Software</license>
     <authorEmail>sad.net79@gmail.com</authorEmail>
     <authorUrl>http://back-end.ga/</authorUrl>
-    <version>0.0.7</version>
+    <version>0.0.8</version>
     <description><![CDATA[Developed & Powered by <a href="http://back-end.ga/" target="_blank">back-end.ga/</a>]]></description>
     <files>
         <folder>asset</folder>
@@ -61,6 +61,8 @@
 						<option value="1">COUNTRY_FILTER_SUBDOMAIN_AS_DIRECTORY</option>
 					</field>
 
+						
+						
 
 					
 				

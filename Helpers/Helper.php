@@ -222,8 +222,21 @@
 			 */
 			if( $this->params->get('subdomain' , 0 , 'INT') )
 			{
-				$subdomain = array_shift($parts)  ;
+
+
+
+                $root = $uri->root($pathonly = 1, $path = null);
+			    $trimmed = trim( $root, "/");
+                $pathRoot = explode('/' , $trimmed ) ;
+                $parts = array_diff ($parts, $pathRoot);
+//			    $subdomain = array_shift($parts)  ;
 			}#END IF
+
+
+//            echo'<pre>';print_r( $subdomain );echo'</pre>'.__FILE__.' '.__LINE__;
+//            echo'<pre>';print_r( $parts );echo'</pre>'.__FILE__.' '.__LINE__;
+//            die(__FILE__ .' '. __LINE__ );
+
 
 			# проверить что первый элемент в пути это явлеется городом
 			$cityInPath  = \CountryFilter\Helpers\CitiesDirectory::getLocationByCityName( $parts[ 0 ]  );

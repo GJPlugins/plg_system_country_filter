@@ -158,8 +158,11 @@
 
 				# Получили SEF путь e.t : austria/en
 				$path = $uri->getPath();
-				$parts = explode( '/', $path );
+                $parts = explode( '/', $path );
 				$parts = array_filter(array_map( 'trim' , explode( '/' , $path ) ));
+
+//                echo'<pre>';print_r( $parts );echo'</pre>'.__FILE__.' '.__LINE__;
+//                die(__FILE__ .' '. __LINE__ );
 
 				# Обработка поддоменов
 				if( $this->params->get('subdomain' , 0 , 'INT') )
@@ -167,7 +170,8 @@
 //					$subdomain = array_shift($parts) . '/' ;
 				}#END IF
 
-				 
+
+
 
 				
 				# Проверяем Если первым параметром в запросе является название региона
@@ -188,7 +192,7 @@
 						$this->country = array_shift( $parts );
 						$uri->setPath( implode( '/' , $parts ) );
 
-//						echo'<pre>';print_r( $parts );echo'</pre>'.__FILE__.' '.__LINE__;
+
 
 
 
