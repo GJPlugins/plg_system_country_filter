@@ -65,7 +65,7 @@
       href="<?= \Joomla\CMS\Uri\Uri::root() ?>/plugins/system/country_filter/asset/css/region_select_modal.json.css"
       rel="stylesheet" type="text/css"/>
 <!--<script src="https://maps.googleapis.com/maps/api/js?key=--><? //= $api_key ?><!--&libraries=places&callback=country_filter_initMap" />-->
-<script src="<?= \Joomla\CMS\Uri\Uri::root() ?>/plugins/system/country_filter/asset/js/country_filter.region_select.modal.js"/>
+<script src="<?= \Joomla\CMS\Uri\Uri::root() ?>/plugins/system/country_filter/asset/js/country_filter.region_select.modal.js"></script>
 
 
 <svg style="display: none;">
