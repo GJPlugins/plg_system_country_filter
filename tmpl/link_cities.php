@@ -6,8 +6,21 @@
 	defined( '_JEXEC' ) or die;
 
     $doc = Factory::getDocument();
-	$doc->addStyleSheet( Uri::root( true ) . '/plugins/system/country_filter/asset/css/region_select_link_cities.css' );
-
+//	$doc->addStyleSheet( Uri::root( true ) . '/plugins/system/country_filter/asset/css/region_select_link_cities.css' );
+    $doc->addStyleDeclaration('
+            .region_select-link_cities ul {
+            list-style: none;
+        }
+        .region_select-link_cities ul li {
+            float: left;
+            margin: 2px 5px;
+            background: #FF5722;
+        }
+        .region_select-link_cities ul li a {
+            color: #fff;
+            margin: 5px;
+        }
+    ');
 	$city_default = $this->params->get('default_city' , null ) ;
 
 

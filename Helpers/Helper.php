@@ -11,7 +11,8 @@
 	
 	
 	use JLoader;
-	use Joomla\Registry\Registry;
+    use Joomla\CMS\Factory;
+    use Joomla\Registry\Registry;
 	
 	class Helper
 	{
@@ -68,8 +69,8 @@
 		 */
 		private function __construct ( $options = array() )
 		{
-			$this->app = \Joomla\CMS\Factory::getApplication();
-			$this->db = \Joomla\CMS\Factory::getDbo();
+			$this->app = Factory::getApplication();
+			$this->db = Factory::getDbo();
 			
 			
 			$this->params = $options ;
@@ -481,7 +482,7 @@
 			// (that is already saved in a cookie).
 			else
 			{
-				\Joomla\CMS\Factory::getSession()->set('plg_system_country_filter.cityAlias', $cityAlias);
+				Factory::getSession()->set('plg_system_country_filter.cityAlias', $cityAlias);
 			}
 		}
 		/**
@@ -505,7 +506,7 @@
 			# В противном случае получить город из сессии.
 			else
 			{
-				$cityAlias = \Joomla\CMS\Factory::getSession()->get('plg_system_country_filter.cityAlias');
+				$cityAlias = Factory::getSession()->get('plg_system_country_filter.cityAlias');
 			}
 
 			if( $cityAlias )
