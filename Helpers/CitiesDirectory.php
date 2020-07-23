@@ -59,18 +59,13 @@
 		 */
 		public static function getLocationByCityName( $city )
 		{
-
-
-
-
-			if( empty($city) )
+            if( empty($city) )
 			{
 				return null ;
 			}#END IF
 
 			$self = self::instance();
-
-			$hash = md5( ( is_array( $city ) ? json_encode( $city ) : $city ) );
+            $hash = md5( ( is_array( $city ) ? json_encode( $city ) : $city ) );
 
 
 			if( isset( $self->CitiesDataArr[ $hash ] ) )

@@ -189,10 +189,7 @@
 			$alias = $this->app->input->get( 'alias' , false  , 'STRING' );
 			$window_location_href = $this->app->input->get( 'window_location_href' , false  , 'RAW' );
 
-
-			
-
-			# Получить даные для выбранного города
+            # Получить даные для выбранного города
 			$newCityData = \CountryFilter\Helpers\CitiesDirectory::getLocationByCityName( $city );
 			# проверяем что новый город является значением citiesAlias в справчнике городов
 			# если город не найден
@@ -201,6 +198,9 @@
 				echo new \Joomla\CMS\Response\JsonResponse( false , \Joomla\CMS\Language\Text::_('COUNTRY_FILTER_CITY_NOT_FOUND') , true  ) ;
 				$this->app->close();
 			}#END IF
+            
+
+            
 
 			# Для поддоменов
 			$subdomain = null;
@@ -215,8 +215,9 @@
 			$uri = \Joomla\CMS\Uri\Uri::getInstance( $window_location_href );
 			# путь Url
 			$path = $uri->getPath();
-			# рабор на составляющие
+			# разбор на составляющие
 			$parts = array_filter(array_map( 'trim' , explode( '/' , $path ) ));
+
 
 
 			/**
@@ -226,9 +227,6 @@
 			 */
 			if( $this->params->get('subdomain' , 0 , 'INT') )
 			{
-
-
-
                 $root = $uri->root($pathonly = 1, $path = null);
 			    $trimmed = trim( $root, "/");
                 $pathRoot = explode('/' , $trimmed ) ;
@@ -236,14 +234,12 @@
 //			    $subdomain = array_shift($parts)  ;
 			}#END IF
 
-
-//            echo'<pre>';print_r( $subdomain );echo'</pre>'.__FILE__.' '.__LINE__;
-//            echo'<pre>';print_r( $parts );echo'</pre>'.__FILE__.' '.__LINE__;
-//            die(__FILE__ .' '. __LINE__ );
-
-
-			# проверить что первый элемент в пути это явлеется городом
+            # проверить что первый элемент в пути это явлеется городом
 			$cityInPath  = \CountryFilter\Helpers\CitiesDirectory::getLocationByCityName( $parts[ 0 ]  );
+
+
+
+
 
 			# если первый элемент в пути это город
 			if( !empty($cityInPath) )
@@ -267,6 +263,15 @@
 					# ставим первым алиас нового города
 					array_unshift( $parts , $newCityData[ 'citiesAlias' ] );
 				}
+				else{
+                    array_shift( $parts );
+                    /*echo'<pre>';print_r( $parts );echo'</pre>'.__FILE__.' '.__LINE__;
+                    echo'<pre>';print_r( $uri->base() );echo'</pre>'.__FILE__.' '.__LINE__;
+                    echo'<pre>';print_r( $this->params->get('default_city') );echo'</pre>'.__FILE__.' '.__LINE__;
+                    echo'<pre>';print_r( $newCityData );echo'</pre>'.__FILE__.' '.__LINE__;
+                    echo'<pre>';print_r( $parts );echo'</pre>'.__FILE__.' '.__LINE__;*/
+
+                }
 			}#END IF
 
 			# TODO Разабраться с параметром - sef_rewrite
