@@ -2,7 +2,7 @@
 <extension version="3.0" type="plugin" group="system" method="upgrade">
     <name>Joomla - Country Filter</name>
     <author>Gartes</author>
-    <creationDate>29th of April, 2020</creationDate>
+    <creationDate>27.07.2020</creationDate>
     <copyright>Copyright © By Gartes. All rights reserved.</copyright>
     <license>Proprietary. Copyrighted Commercial Software</license>
     <authorEmail>sad.net79@gmail.com</authorEmail>
