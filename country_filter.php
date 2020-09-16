@@ -103,6 +103,10 @@
 		 */
 		public function onAfterInitialise ()
 		{
+//            $this->profiler = JProfiler::getInstance('plg_search_joomshopping_two_lang'); #END IF
+//            $this->profiler->mark('onAfterInitialise ' . __FILE__ .' '. __LINE__ );
+
+
 			if( !$this->app->isClient( 'site' ) )
 				return false; #END IF
 
@@ -179,6 +183,9 @@
 				# иначе берем по умолчанию
 				if( !empty( $parts[ 0 ] )   )
 				{
+
+
+
 					$this->countries = \CountryFilter\Helpers\CitiesDirectory::getLocationByCityName( $parts[ 0 ] );
 					# Если город найден убераем город из пути
 					# Сохраняем путь в роутер
@@ -334,6 +341,8 @@
 		
 		public function onAfterRoute ()
 		{
+
+
 //			$uri = \Joomla\CMS\Uri\Uri::getInstance();
 
 //			echo'<pre>';print_r( $uri );echo'</pre>'.__FILE__.' '.__LINE__;
@@ -344,6 +353,8 @@
 		
 		public function onAfterDispatch ()
 		{
+
+
 		}
 		
 		/**
@@ -354,9 +365,6 @@
 		 */
 		public function onAfterModuleList(&$modules)
 		{
-			$m = $this->app->getMenu() ;
-			$mActiveId  = $m->getActive() ;
-   
 			if( $this->app->isClient( 'site' ) )
 			{
 				$helper = \CountryFilter\Helpers\Helper::instance( $this->params );
@@ -365,10 +373,6 @@
 				{
 					$modules[]  = $helper->getModul('link_cities');
 				}#END IF
-
-
-
-
             }
 			
 			return $modules;

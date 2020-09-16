@@ -10,7 +10,8 @@
 	use CountryFilter\Helpers\CitiesDirectory;
 	use Joomla\CMS\Factory;
 	
-	
+
+
 	$arrCityTop_Def = [
 		'Москва',
 		'Санкт-Петербург',
