@@ -8,8 +8,7 @@
 	
 	class plgSystemCountry_filter extends JPlugin
 	{
-		
-		
+
 		/**
 		 * Affects constructor behavior. If true, language files will be loaded automatically.
 		 *
@@ -17,8 +16,7 @@
 		 * @since  3.1
 		 */
 		protected $autoloadLanguage = true;
-		
-		protected $app;
+	    protected $app;
 		
 		/**
 		 * extension_id this plugin
@@ -71,7 +69,8 @@
 			parent::__construct( $subject, $config );
 			# extension_id this plugin
 			$this->_extension_id = $config['id'] ;
-			
+
+            define('_COUNTRY_FILTER_VERSION', $this->params->get('__v' , '0.1.5') );
 			
 			JLoader::registerNamespace('GNZ11',JPATH_LIBRARIES.'/GNZ11',$reset=false,$prepend=false,$type='psr4');
 			JLoader::registerNamespace('CountryFilter',JPATH_PLUGINS.'/system/country_filter',$reset=false,$prepend=false,$type='psr4');
@@ -153,7 +152,7 @@
 			# префикс города найден или используется город по умолчанию
 			$found = false;
 			$subdomain = null;
-			# Получаем город по усолчанию из настроек
+			# Получаем город по умолчанию из настроек
 			$this->default_region = $this->params->get( 'default_city' , 'moskva' );
 
 			# Мы в режиме SEF или нет?
@@ -179,32 +178,20 @@
 
 				
 				# Проверяем Если первым параметром в запросе является название региона
-				# из из справчника
+				# из справочника
 				# иначе берем по умолчанию
 				if( !empty( $parts[ 0 ] )   )
 				{
 
-
-
 					$this->countries = \CountryFilter\Helpers\CitiesDirectory::getLocationByCityName( $parts[ 0 ] );
-					# Если город найден убераем город из пути
+					# Если город найден уберем город из пути
 					# Сохраняем путь в роутер
-					
 
-
-					
 					if( is_array($this->countries) && in_array( $parts[ 0 ] , $this->countries ) )
 					{
 						# Вытаскиваем префикс города из пути и запоминаем
 						$this->country = array_shift( $parts );
 						$uri->setPath( implode( '/' , $parts ) );
-
-
-
-
-
-
-
 
 						# Пытаемся найти в куках
 						$cookieData = $this->Helper->getCityCookie();
@@ -339,23 +326,9 @@
 //			echo '<pre>'; print_r( $uri ); echo '</pre>' . __FILE__ . ' ' . __LINE__;
 		}
 		
-		public function onAfterRoute ()
-		{
-
-
-//			$uri = \Joomla\CMS\Uri\Uri::getInstance();
-
-//			echo'<pre>';print_r( $uri );echo'</pre>'.__FILE__.' '.__LINE__;
-//			echo'<pre>';print_r( $this->app->input );echo'</pre>'.__FILE__.' '.__LINE__;
-
-			
-		}
+		public function onAfterRoute (){}
 		
-		public function onAfterDispatch ()
-		{
-
-
-		}
+		public function onAfterDispatch(){}
 		
 		/**
 		 * Evt - После создания списка модулей
@@ -377,31 +350,37 @@
 			
 			return $modules;
 		}
-		public function onBeforeCompileHead ()
-		{
-		}
-		
+
+        /**
+         *
+         * @since 3.9
+         * @auhtor Gartes | sad.net79@gmail.com | Skype : agroparknew | Telegram : @gartes
+         * @date 19.10.2020 22:59
+         *
+         */
+		public function onBeforeCompileHead () {}
+
+        /**
+         * Перед созданием тела страницы
+         * @since 3.9
+         * @auhtor Gartes | sad.net79@gmail.com | Skype : agroparknew | Telegram : @gartes
+         * @date 19.10.2020 22:58
+         *
+         */
 		public function onBeforeRender()
 		{
-			if( $this->app->isClient( 'site' ) ){
+			if( $this->app->isClient( 'site' ) ) return; #END IF
 
-				return;
-			}#END IF
-
-			
 			$option = $this->app->input->get('option') ;
 			$view = $this->app->input->get('view') ;
 			$layout = $this->app->input->get('layout') ;
 			$extension_id = $this->app->input->get('extension_id') ;
-			
-			
 			if( $option=='com_plugins'&&$view=='plugin'&&$layout=='edit'&&$extension_id==$this->_extension_id )
 			{
 				CountryFilter\Helpers\Admin::addButton();
 			}#END IF
-			
-			
 		}
+
 		/**
 		 * onAfterRender.
 		 *

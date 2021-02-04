@@ -97,10 +97,63 @@ window.CountryFilterCore = function ( InitNew ) {
         format : 'json' ,
         task : null ,
     }
-
+    /**
+     * Индикатор активной вкладки
+     * @type {boolean}
+     */
+    this.activeWindow = true ;
     this.Init = function () {
-        this.load.js( this.__params.siteUrl + 'plugins/system/country_filter/asset/js/CountryFilter.RegionSelect.js')
+        this.load.js( this.__params.siteUrl + 'plugins/system/country_filter/asset/js/CountryFilter.RegionSelect.js?v='+this.__params.__v);
+        this.getModul('Storage_class').then(function (r){
+            setTimeout(function (){
+                var SU = new StorageUtilities();
+                // Установить определение  если вкладка активна
+                $(window).focus(function() {
+                    self.activeWindow = true ;
+                });
+                $(window).blur(function() {
+                    self.activeWindow = false ;
+                });
+                SU.checkChangeStorageData( self.StorageName , self.reloadForNewCity , 'LocalStorage'  ) ;
+            },1000)
+
+
+        },function (err){console.log(err)});
     };
+    /**
+     * Если город был изменен перегружаем фоновые странницы
+     * callback SU.checkChangeStorageData
+     * @param dataStorage
+     */
+    this.reloadForNewCity = function ( dataStorage ){
+        // Если вкладка активная
+        if ( self.activeWindow ) return ;
+
+        console.log('CountryFilter.Core:self.activeWindow' , self.activeWindow  );
+        console.log('CountryFilter.Core:reloadForNewCity' , dataStorage  );
+        // window.location.href = dataStorage ;
+        
+        console.log('CountryFilter.Core:reloadForNewCity' , window.location.href );
+         
+
+
+        var Data = {},
+            linkHref = $( this ).attr('href');
+        Data.alias = dataStorage.citiesAlias;
+        Data.city = dataStorage.cities;
+        Data.window_location_href = window.location.href ;
+        // получить данные о новом городе
+        self.getLocationByCityName(Data).then(function ( Location )
+        {
+            window.location.href = Location.data.rLink ;
+            console.log('CountryFilter.Core:Location' , Location.data.rLink );
+             
+        },function (err){
+            console.log('CountryFilter.Core:err' , err );
+        });
+
+    }
+
     /**
      * найти город по названию
      * Data = {
@@ -108,23 +161,18 @@ window.CountryFilterCore = function ( InitNew ) {
      *     Data.city    string
      * }
      */
-    this.getLocationByCityName = function ( Data )
-    {
-        var data = $.extend( true , this.AjaxDefaultData , Data );
+    this.getLocationByCityName = function ( Data ) {
+        var data = $.extend(true, this.AjaxDefaultData, Data);
         data.task = 'getLocationByCityName';
-        return new Promise( function ( resolve , reject )
-        {
-            self.getModul( "Ajax" ).then( function ( Ajax )
-            {
+        return new Promise(function (resolve, reject) {
+            self.getModul("Ajax").then(function (Ajax) {
                 // Не обрабатывать сообщения
                 Ajax.ReturnRespond = true;
                 // Отправить запрос
-                Ajax.send( data ).then( function ( r )
-                {
-                    resolve( r )
-                } , function ( err )
-                {
-                    console.error( err )
+                Ajax.send(data).then(function (r) {
+                    resolve(r)
+                }, function (err) {
+                    console.error(err)
                 })
             });
         });

@@ -12,6 +12,7 @@
 	
 	use JLoader;
     use Joomla\CMS\Factory;
+    use Joomla\CMS\Response\JsonResponse;
     use Joomla\Registry\Registry;
 	
 	class Helper
@@ -109,6 +110,7 @@
 			$pluginName = 'country_filter' ;
 			$JsData['siteUrl'] = \Joomla\CMS\Uri\Uri::root();
 			$JsData['default_city'] = $this->params->get('default_city');
+            $JsData['__v'] = _COUNTRY_FILTER_VERSION ;
 			\GNZ11\Document\Options::addPluginOptions(  $pluginName , $JsData );
 		}
 		
@@ -119,11 +121,7 @@
 		 * @since version
 		 */
 		public function getModuleAjax(){
-
-
-
-
-			$format = $this->app->input->get('format' , 'html' , 'WORD' );
+            $format = $this->app->input->get('format' , 'html' , 'WORD' );
 			$moduleName = $this->app->input->get('moduleName' , 'html' , 'STRING' );
 			$moduleName .= ($format=='html'? null :'.'.$format);
 			
@@ -178,7 +176,7 @@
 		}
 		
 		/**
-		 * Найти информауию о геолакации из справочников по названию города
+		 * Найти информацию о геолокации из справочников по названию города
 		 * используется когда пользователь выбирает город в модальном окне !
 		 * -----   Ajax   -----
 		 * @since 3.9
@@ -189,13 +187,14 @@
 			$alias = $this->app->input->get( 'alias' , false  , 'STRING' );
 			$window_location_href = $this->app->input->get( 'window_location_href' , false  , 'RAW' );
 
-            # Получить даные для выбранного города
+            # Получить данные для выбранного города
 			$newCityData = \CountryFilter\Helpers\CitiesDirectory::getLocationByCityName( $city );
-			# проверяем что новый город является значением citiesAlias в справчнике городов
-			# если город не найден
+			# проверяем что новый город является значением citiesAlias в справочнике городов
+			
+            # если город не найден
 			if( !$newCityData )
 			{
-				echo new \Joomla\CMS\Response\JsonResponse( false , \Joomla\CMS\Language\Text::_('COUNTRY_FILTER_CITY_NOT_FOUND') , true  ) ;
+				echo new JsonResponse( false , \Joomla\CMS\Language\Text::_('COUNTRY_FILTER_CITY_NOT_FOUND') , true  ) ;
 				$this->app->close();
 			}#END IF
             
@@ -220,10 +219,12 @@
 
 
 
+			
+            
 			/**
 			 * Обработка поддоменов
 			 * Если поддомен указан как директория то вынимаем его из массива
-			 * и первый элемент м индексом 0 - станет следующий элемент
+			 * и первый элемент с индексом 0 - станет следующий элемент
 			 */
 			if( $this->params->get('subdomain' , 0 , 'INT') )
 			{
@@ -231,14 +232,21 @@
 			    $trimmed = trim( $root, "/");
                 $pathRoot = explode('/' , $trimmed ) ;
                 $parts = array_diff ($parts, $pathRoot);
+                // пересчитываем ключи массива
+                $parts = array_values( $parts ) ;
+
+                
+                
 //			    $subdomain = array_shift($parts)  ;
 			}#END IF
 
-            # проверить что первый элемент в пути это явлеется городом
+            # проверить что первый элемент в пути это является городом
 			$cityInPath  = \CountryFilter\Helpers\CitiesDirectory::getLocationByCityName( $parts[ 0 ]  );
 
 
 
+
+            
 
 
 			# если первый элемент в пути это город
@@ -249,8 +257,14 @@
 				{
 					# заменяем первый элемент в пути на новый город
 					$parts[ 0 ] = $newCityData[ 'citiesAlias' ];
+
+//					echo'<pre>';print_r( $newCityData );echo'</pre>'.__FILE__.' '.__LINE__ . PHP_EOL;
+//					echo'<pre>';print_r( $cityInPath );echo'</pre>'.__FILE__.' '.__LINE__ . PHP_EOL;
+//                    echo'<pre>';print_r( $parts );echo'</pre>'.__FILE__.' '.__LINE__ . PHP_EOL;
+//                    die(__FILE__ .' '. __LINE__ );
+
 				}
-				# Если по умолчанию - забираем его из пути что бы не поазывать !
+				# Если по умолчанию - забираем его из пути что бы не показывать !
 				else
 				{
 					array_shift( $parts );
@@ -283,9 +297,17 @@
 
 			# Устанавливаем новый путь
 			$uri->setPath(   implode('/', $parts ) );
+//            \Joomla\Uri\Uri::setPath() ;
+
+//            echo'<pre>';print_r( $parts );echo'</pre>'.__FILE__.' '.__LINE__ . PHP_EOL;
+//            die(__FILE__ .' '. __LINE__ );
+
+
 
 			# Создаем ссылку для перенапрвыления
 			$redirectUri = $uri->base() . $uri->toString(array('path', 'query', 'fragment'));
+
+
 
 
 			# Убираем из частей пути все - кроме города
@@ -304,7 +326,9 @@
 			$newCityData['rLink']  = $redirectUri ;
 			$newCityData['rLinkRoot']   = $redirectUriBase ;
 
-			echo new \Joomla\CMS\Response\JsonResponse( $newCityData , \Joomla\CMS\Language\Text::_('COUNTRY_FILTER_CITY_FOUND') , false  ) ;
+
+
+			echo new JsonResponse( $newCityData , \Joomla\CMS\Language\Text::_('COUNTRY_FILTER_CITY_FOUND') , false  ) ;
 			$this->app->close();
 
 
@@ -354,8 +378,6 @@
 
 		}
 
-
-		
 		/**
 		 * Загрузчик модулей
 		 *

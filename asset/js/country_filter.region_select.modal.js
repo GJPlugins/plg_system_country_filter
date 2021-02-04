@@ -22,7 +22,7 @@ window.RegionSelectModal = function ( InitNew ) {
         $inputCityAutocomplete.on('focus' , function (event)
         {
             var $inputCityAutocomplete = $(self.selectos.inputCityAutocomplete);
-            console.clear();
+
             // Запрещаем отправку формы
             $form.on('submit' , function (event) {
                 event.preventDefault();
@@ -32,8 +32,7 @@ window.RegionSelectModal = function ( InitNew ) {
             // Обрабатываем нажатие ENTER
             $inputCityAutocomplete.on('keydown',function(e) {
                 if (e.which === 13) {
-                    console.clear()
-                    console.log(e)
+
                     EVT_User();
                     return false ;
                 }
@@ -43,10 +42,7 @@ window.RegionSelectModal = function ( InitNew ) {
             $( self.selectos.modalBtnApply ).off('click.RegionSelect')
                 .on('click.region_select_modal', EVT_User ) ;
 
-
             $(self.selectos.modalLinkRoot).on('click.region_select_modal', EVT_User )
-
-            console.log( 'focus' );
         }).on('blur' , function (event)
         {
             event.preventDefault();

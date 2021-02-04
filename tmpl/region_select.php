@@ -9,8 +9,9 @@
 	
 	$doc = JFactory::getDocument();
 	// $this->getCityData() ;
-//	echo'<pre>';print_r( $this->mapCityData );echo'</pre>'.__FILE__.' '.__LINE__;
-//	die(__FILE__ .' '. __LINE__ );
+
+   /* echo'<pre>';print_r( _COUNTRY_FILTER_VERSION );echo'</pre>'.__FILE__.' '.__LINE__;
+	die(__FILE__ .' '. __LINE__ );*/
 	
 	/**
 	 * Отложенная загрузка скрипта управления
@@ -18,11 +19,11 @@
 	 */
 	$Jpro = $doc->getScriptOptions('Jpro') ;
     $Jpro['load'][] = [
-		'u' => \Joomla\CMS\Uri\Uri::base(true) . '/plugins/system/country_filter/asset/js/CountryFilter.Core.js' , // Путь к файлу
+		'u' => \Joomla\CMS\Uri\Uri::base(true) . '/plugins/system/country_filter/asset/js/CountryFilter.Core.js?v='._COUNTRY_FILTER_VERSION , // Путь к файлу
 		't' => 'js' ,                                       // Тип загружаемого ресурса
 		'c' => '' ,                             // метод после завершения загрузки
 	];
-	
+
 	$doc->addScriptOptions('Jpro' , $Jpro , true ) ;
 	$Jpro = $doc->getScriptOptions('Jpro') ;
 	
